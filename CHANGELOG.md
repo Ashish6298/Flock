@@ -66,3 +66,28 @@ All notable changes to the Flock project will be documented here.
 - Asynchronous `ResultRegistry` container processing waiters and TTL cleanup sweeps.
 - `ResultCollector` routing incoming TASK_RESULT network packets.
 - Orchestration `ResultService` implementing asynchronous client result waiting hooks.
+
+## [0.5.0] - 2026-07-19
+
+### Added
+- Distributed Retry & Recovery Engine package (`src/flock/recovery/`).
+- Immutable `RetryPolicy`, `RetryContext`, `RetryDecision`, and `RecoveryPlan` logs.
+- `RetryPolicyEngine` supporting Fixed, Linear, and Exponential Jitter backoff algorithms.
+- `RecoveryRegistry` managing active recovery tasks and worker cooldown exclusions.
+- `RecoveryEngine` coordinating with PlacementEngine to schedule task reassignments.
+- `RecoveryService` managing node recovery handshake packets.
+
+## [0.6.0] - 2026-07-20
+
+### Added
+- Distributed Raft Consensus Engine package (`src/flock/consensus/`).
+- `ConsensusLog` – thread-safe, 1-based indexed replicated log with commit semantics, truncation for conflict repair, and Phase 13 snapshot hooks.
+- `RaftStateMachine` – deterministic FOLLOWER/CANDIDATE/LEADER role FSM with one-vote-per-term enforcement, log completeness checks (Raft §5.4.1), and commit index advancement.
+- `ElectionEngine` – randomised election timers (150–300ms, configurable), vote solicitation via MessageBus, quorum detection, and leader promotion.
+- `ReplicationEngine` – AppendEntries 5-step receiver logic, optimised conflict hints, per-peer nextIndex/matchIndex tracking, and quorum-gated commit index advancement.
+- `ConsensusService` – top-level orchestrator wiring all components; registers 8 Raft message handlers; publishes `consensus.leader.elected`, `consensus.term.changed`, `consensus.log.committed`, and `consensus.replication.failed` events.
+- 8 new `MessageType` constants (46–53): `RAFT_REQUEST_VOTE`, `RAFT_VOTE_RESPONSE`, `RAFT_APPEND_ENTRIES`, `RAFT_APPEND_RESPONSE`, `RAFT_HEARTBEAT`, `RAFT_LEADER_ANNOUNCE`, `RAFT_LOG_SYNC_REQUEST`, `RAFT_LOG_SYNC_RESPONSE`.
+- 7 typed exception classes: `InvalidTermError`, `LogConflictError`, `ElectionTimeoutError`, `LeaderUnavailableError`, `ConsensusViolationError`, `ReplicationFailureError`, `QuorumNotReachedError`.
+- 13 immutable Pydantic models: `RaftRole`, `RaftNodeState`, `LogEntry`, `TermInfo`, `VoteRequest`, `VoteResponse`, `AppendEntriesRequest`, `AppendEntriesResponse`, `ElectionResult`, `HeartbeatPayload`, `LeaderAnnouncePayload`, `LogSyncRequest`, `LogSyncResponse`.
+- ADR 0012 documenting Raft algorithm selection, election algorithm, replication strategy, rejected alternatives, and Phase 13 integration hooks.
+- 98 automated tests across 5 new test files; 138/138 total tests passing; mypy strict: 0 issues.

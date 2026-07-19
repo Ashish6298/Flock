@@ -60,7 +60,7 @@ class PlacementEngine:
         """Lookup node capabilities; returns default fallback if not registered."""
         return self._capabilities.get(node_id, NodeCapability(node_id=node_id))
 
-    async def place_task(self, task: Task) -> PlacementDecision:
+    async def place_task(self, task: Task, exclude_nodes: Optional[List[str]] = None) -> PlacementDecision:
         """Evaluate task placement and broadcast assignment over messaging pipeline.
 
         Raises:
@@ -73,7 +73,10 @@ class PlacementEngine:
         active_members = self.membership.registry.list_members(ClusterMemberStatus.ACTIVE)
         candidates = []
 
+        excludes = exclude_nodes or []
         for member in active_members:
+            if member.node_id in excludes:
+                continue
             # Check reachability in heartbeat registry
             health = self.heartbeat.registry.get_record(member.node_id)
             if member.node_id == self.node_id or (health and health.state == HealthState.HEALTHY):

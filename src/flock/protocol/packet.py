@@ -50,6 +50,23 @@ class MessageType:
     TASK_RESULT_TIMEOUT = 35
     TASK_RESULT_RETRY = 36
     TASK_RESULT_STREAM_END = 37
+    TASK_RETRY_REQUEST = 38
+    TASK_RETRY_ACK = 39
+    TASK_RECOVERY_REQUEST = 40
+    TASK_RECOVERY_ACK = 41
+    TASK_RECOVERY_CANCEL = 42
+    TASK_RECOVERY_COMPLETE = 43
+    TASK_RECOVERY_FAILED = 44
+    TASK_RECOVERY_STATUS = 45
+    # Phase 12 – Distributed Raft Consensus Engine
+    RAFT_REQUEST_VOTE = 46
+    RAFT_VOTE_RESPONSE = 47
+    RAFT_APPEND_ENTRIES = 48
+    RAFT_APPEND_RESPONSE = 49
+    RAFT_HEARTBEAT = 50
+    RAFT_LEADER_ANNOUNCE = 51
+    RAFT_LOG_SYNC_REQUEST = 52
+    RAFT_LOG_SYNC_RESPONSE = 53
 
 class Packet:
     """Prepares and validates standard raw network frames for Flock communication."""

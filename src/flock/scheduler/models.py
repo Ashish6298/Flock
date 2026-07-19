@@ -21,6 +21,8 @@ class TaskStatus(str, Enum):
     ASSIGNED = "ASSIGNED"
     CANCELLED = "CANCELLED"
     EXPIRED = "EXPIRED"
+    FAILED = "FAILED"
+    COMPLETED = "COMPLETED"
 
 class SchedulingPolicy(str, Enum):
     """Policies dictating how tasks are ordered in queues."""

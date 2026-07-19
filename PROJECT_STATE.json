@@ -1,6 +1,6 @@
 {
-  "current_version": "0.1.0",
-  "current_milestone": "Milestone D",
+  "current_version": "0.6.0",
+  "current_milestone": "Milestone E",
   "completed_phases": [
     {
       "phase": 1,
@@ -51,6 +51,16 @@
       "phase": 10,
       "name": "Distributed Result Collection & Completion Pipeline",
       "description": "Transport-independent result collection systems, serialization layers, registry catalogs, duplicate suppression mechanisms, and async completion tracking waiters."
+    },
+    {
+      "phase": 11,
+      "name": "Distributed Retry & Recovery Engine",
+      "description": "Backoff policy evaluations (Fixed, Linear, Exponential Jitter), active recovery plans tracking, and placement engine failovers."
+    },
+    {
+      "phase": 12,
+      "name": "Distributed Raft Consensus Engine",
+      "description": "Complete Raft consensus implementation: ConsensusLog, RaftStateMachine, ElectionEngine, ReplicationEngine, ConsensusService. 8 protocol extensions, 13 Pydantic models, 7 typed exceptions. 98 tests, 0 failures, 0 mypy errors."
     }
   ],
   "milestones_met": [
@@ -63,11 +73,13 @@
     "Deterministic scheduling queue priorities and task registry states verified.",
     "Constraint capability matching evaluation stages and task assignment handshakes verified.",
     "Configurable local thread-pool/process/async execution backends and context isolations functional.",
-    "Transport-independent serialization payloads, async completion futures, and registry TTL cleanups verified."
+    "Transport-independent serialization payloads, async completion futures, and registry TTL cleanups verified.",
+    "Dynamic backoff delays, cooldown exclusions registry, and PlacementEngine task reassignments functional.",
+    "Raft leader election with quorum voting, one-vote-per-term enforcement, log completeness checks, AppendEntries 5-step receiver, commit index quorum calculation, and all 8 message types registered and handled."
   ],
   "next_target_phase": {
-    "phase": 11,
-    "name": "Distributed Fault Tolerance & Failover Recovery",
-    "description": "Task state reconciliation loops, health supervisor monitoring, and automated reassignment policies."
+    "phase": 13,
+    "name": "Persistent Distributed Log & Snapshot Management",
+    "description": "Durable Raft state persistence (current_term, voted_for, log entries), log compaction with snapshot creation, InstallSnapshot RPC for lagging follower catch-up, and pluggable SnapshotStore interface."
   }
 }
