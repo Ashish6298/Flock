@@ -1,0 +1,40 @@
+[project]
+name = "flock-core"
+version = "0.1.0"
+description = "Brokerless, peer-to-peer distributed task execution framework for Python"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+    { name = "Flock Authors" }
+]
+dependencies = [
+    "pydantic>=2.0.0",
+    "structlog>=23.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "mypy>=1.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+]
+
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unused_configs = true
+ignore_missing_imports = true
