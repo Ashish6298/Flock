@@ -201,3 +201,46 @@ All notable changes to the Flock project will be documented here.
 - Message type constants 122-131 mapping federation join, state sync, and status report queries.
 - ADR 0020 documenting multi-cluster routing models and replication sync.
 - 10 automated tests; 212/212 total tests passing; mypy strict clean.
+
+## [1.5.0] - 2026-07-20
+
+### Added
+- Distributed Workflow Engine & DAG Orchestration package (`src/flock/workflow/`).
+- Immutable `WorkflowNode`, `WorkflowEdge`, `WorkflowDefinition`, `WorkflowCheckpoint`, and `WorkflowResult` models.
+- `WorkflowGraphEngine` validating DAG cycle loops and resolving execution ordering.
+- `WorkflowPlanner` compiling topological steps for scheduler dispatchers.
+- `WorkflowCheckpointManager` performing progress snapshot writes to storage backends.
+- `WorkflowExecutor` coordinating step execution pipelines.
+- `WorkflowService` exposing submission handshakes and message bus queries.
+- Message type constants 132-141 mapping workflow progress, checkpoints, and recovery parameters.
+- ADR 0021 documenting workflow validation rules, checkpoints, and recovery designs.
+- 8 automated tests; 220/220 total tests passing; mypy strict clean.
+
+## [1.6.0] - 2026-07-20
+
+### Added
+- Distributed Scheduling, Cron Engine & Event-Driven Automation package (`src/flock/scheduling/`).
+- Immutable `ScheduleDefinition`, `EventTrigger`, `ScheduleExecution`, and `SchedulerSnapshot` models.
+- `CronEngine` parsing 5-field cron strings and calculating next run increments.
+- `EventTriggerEngine` matching EventBus messages to registered triggers.
+- `ScheduleRegistry` storing and listing active scheduling configurations.
+- `SchedulingEngine` coordinating timer ticks and leadership guards.
+- `SchedulingService` exposing sync creation endpoints.
+- Message type constants 142-151 mapping schedule creation, execution, and status queries.
+- ADR 0022 documenting leader schedulers and cron parsers.
+- 8 automated tests; 228/228 total tests passing; mypy strict clean.
+
+## [1.7.0] - 2026-07-20
+
+### Added
+- Distributed Event Streaming, Message Broker & Pub/Sub Framework package (`src/flock/streaming/`).
+- Immutable `Topic`, `Partition`, `EventMessage`, `ConsumerGroup`, `ConsumerOffset`, `Subscription`, `StreamMetadata`, `PublishRequest`, and `DeliveryReceipt` models.
+- `TopicRegistry` managing partition configurations and subscription mappings.
+- `StreamStorage` sequential base64 writes to disk backends.
+- `PublisherEngine` key-hashing requests to partition targets.
+- `SubscriberEngine` handling commits and triggering EventBus updates.
+- `BackpressureController` tracking sliding window rate limits.
+- `StreamingService` exposing sync topic creation routes.
+- Message type constants 152-161 mapping topic creation, publishes, commits, and status queries.
+- ADR 0023 documenting partition managers and offset trackers.
+- 7 automated tests; 235/235 total tests passing; mypy strict clean.
