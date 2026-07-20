@@ -91,3 +91,113 @@ All notable changes to the Flock project will be documented here.
 - 13 immutable Pydantic models: `RaftRole`, `RaftNodeState`, `LogEntry`, `TermInfo`, `VoteRequest`, `VoteResponse`, `AppendEntriesRequest`, `AppendEntriesResponse`, `ElectionResult`, `HeartbeatPayload`, `LeaderAnnouncePayload`, `LogSyncRequest`, `LogSyncResponse`.
 - ADR 0012 documenting Raft algorithm selection, election algorithm, replication strategy, rejected alternatives, and Phase 13 integration hooks.
 - 98 automated tests across 5 new test files; 138/138 total tests passing; mypy strict: 0 issues.
+
+## [0.7.0] - 2026-07-20
+
+### Added
+- Replicated Distributed State Machine & Metadata Store package (`src/flock/statemachine/`).
+- Immutable `StateCommand`, `StateOperation`, `StateEntry`, `StateSnapshotMetadata`, and `ReplicatedValue` models.
+- `ReplicatedStateStore` supporting PUT, UPDATE, DELETE, UPSERT, INCREMENT, APPEND, SET_ADD, SET_REMOVE, MAP_PUT, MAP_DELETE.
+- `StateMachineEngine` enforcing sequential commit processing, duplicate command checks, and SHA256 checksummed snapshot generation.
+- `StateMachineService` combining the store, engine, consensus commit callbacks, and asynchronous Future awaits.
+- Protocol message definitions 54-61 mapping commands, updates, and sync actions.
+- ADR 0013 detailing the state machine design, idempotency model, and checksum safety guarantees.
+- 14 automated tests; 152/152 total tests passing; mypy strict type checker clean.
+
+## [0.8.0] - 2026-07-20
+
+### Added
+- Distributed Snapshot Replication & Log Compaction package (`src/flock/snapshot/`).
+- Immutable `SnapshotMetadata`, `SnapshotManifest`, `SnapshotChunk`, `SnapshotTransferSession`, `SnapshotInstallRequest`, `SnapshotInstallResponse`, `SnapshotRestoreResult`, and `CompactionStatistics` models.
+- `SnapshotStorage` managing snapshot listings, SHA-256 integrity verifications, and configurable retention limits.
+- `LogCompactor` safely truncating committed log prefixes.
+- `SnapshotReplicator` performing segmenting, streaming, chunk verification, and reassembly.
+- `SnapshotService` orchestrating auto-triggers, compaction pipelines, and InstallSnapshot message handshakes.
+- Message type constants 62-71 mapping requests, chunks, and compaction notifications.
+- ADR 0014 documenting log compaction strategy, chunked transfers, and InstallSnapshot invariants.
+- 9 automated tests; 161/161 total tests passing; mypy strict clean.
+
+## [0.9.0] - 2026-07-20
+
+### Added
+- Persistent Storage Engine & Write-Ahead Logging (WAL) package (`src/flock/storage/`).
+- Immutable `WALEntry`, `WALSegment`, `StorageMetadata`, `RecoveryCheckpoint`, `PersistentState`, `StorageStatistics`, `WALReplayResult`, `StorageConfiguration`, and `StorageHealthReport` models.
+- Pluggable `StorageBackend` abstraction and `FileStorageBackend` filesystem driver with atomic write-rename swaps.
+- `WriteAheadLog` managing sequential entry appends, checksum validation, and segment rotations.
+- `PersistentStorageEngine` coordinating metadata checkpoints and snapshot compaction logs.
+- `RecoveryEngine` executing node state restoration via FSM snapshot loading and sequential WAL entry replays.
+- Message type constants 72-81 mapping sync actions, checkpoints, and health report queries.
+- ADR 0015 documenting Write-Ahead Logging formats, fsync guarantees, and recovery workflows.
+- 9 automated tests; 169/169 total tests passing; mypy strict clean.
+
+## [1.0.0] - 2026-07-20
+
+### Added
+- Distributed Observability, Metrics & Telemetry Framework package (`src/flock/observability/`).
+- Immutable `MetricValue`, `Span`, `NodeHealthReport`, and `ClusterHealthReport` models.
+- `MetricsRegistry` supporting counters, gauges, summaries, and histogram percentile bounds.
+- `TelemetryExporter` outputting JSON streams and Prometheus exposition formats.
+- `TracingEngine` generating traces, child spans, and timeline annotations.
+- `HealthMonitor` evaluating liveness degradation parameters.
+- `ObservabilityService` binding network endpoints.
+- Message type constants 82-91 mapping metric requests, trace syncs, and diagnostics queries.
+- ADR 0016 documenting EventBus-driven instrumentation and telemetry designs.
+- 9 automated tests; 178/178 total tests passing; mypy strict clean.
+
+## [1.1.0] - 2026-07-20
+
+### Added
+- Distributed Security, Authentication & Authorization Framework package (`src/flock/security/`).
+- Immutable `NodeIdentity`, `SessionToken`, `AccessDecision`, and `SecurityAuditRecord` models.
+- `CryptographyEngine` providing SHA-256 digests and HMAC-SHA256 signing and verifications.
+- `IdentityManager` validating trusted certificates and peers.
+- `AuthorizationEngine` implementing RBAC checks for coordinator, worker, and observer roles.
+- `TokenManager` issuing and validating signed SessionTokens.
+- `SecureHandshakeManager` performing challenge-response handshakes for joining nodes.
+- `SecurityAuditLogger` recording immutable event logs to the EventBus.
+- Message type constants 92-101 mapping authentication, token validation, and secure session handshakes.
+- ADR 0017 documenting cryptographic signatures and RBAC policies.
+- 10 automated tests; 188/188 total tests passing; mypy strict clean.
+
+## [1.2.0] - 2026-07-20
+
+### Added
+- Distributed Resource Manager & Intelligent Cluster Load Balancer package (`src/flock/resources/`).
+- Immutable `NodeResourceProfile`, `ResourceReservation`, `AllocationResult`, `WorkloadClassification`, `BalancingDecision`, and `CapacityForecast` models.
+- `ResourceRegistry` tracking node capacities, utilization levels, and accelerator metrics.
+- `ResourceAllocator` handling reservations, leases, and rollback allocations.
+- `LoadBalancingEngine` executing Best-Fit, Least Loaded, and Round Robin strategies.
+- `CapacityPlanner` forecasting cluster exhaustion timeframes and alerts.
+- `AdmissionController` enforcing quota policy checks and node capability bounds.
+- `ResourceBalancer` computing skew variance recommendations.
+- Message type constants 102-111 mapping resource updates, allocation requests, and utilization broadcasts.
+- ADR 0018 documenting load balancing strategies, quota limits, and capacity models.
+- 8 automated tests; 196/196 total tests passing; mypy strict clean.
+
+## [1.3.0] - 2026-07-20
+
+### Added
+- Autonomous Cluster Orchestrator & Self-Healing Scheduler package (`src/flock/orchestrator/`).
+- Immutable `ClusterPolicy`, `OptimizationPlan`, `ScalingDecision`, `MigrationPlan`, `SchedulingRecommendation`, and `ClusterSnapshot` models.
+- `PolicyEngine` tracking global placement configurations and threshold alerts.
+- `AutonomousScheduler` directing task migration transactions and event logs.
+- `OptimizationEngine` calculating target cluster rebalancing plans.
+- `AutoScaler` computing scale-out and scale-in size changes.
+- `OrchestratorService` exposing policy synchronization handlers.
+- Message type constants 112-121 mapping policies, migrations, and rebalance notifications.
+- ADR 0019 documenting orchestrator policies and autoscaler limits.
+- 9 automated tests; 202/202 total tests passing; mypy strict clean.
+
+## [1.4.0] - 2026-07-20
+
+### Added
+- Multi-Cluster Federation & Global Scheduler package (`src/flock/federation/`).
+- Immutable `FederationCluster`, `FederationNode`, `GlobalTask`, `RoutingDecision`, `ReplicationPolicy`, `FederationHealth`, `FederationSnapshot`, and `ClusterAdvertisement` models.
+- `FederationRegistry` managing member clusters and endpoints directories.
+- `GlobalRoutingEngine` implementing capacity-aware destination selection heuristics.
+- `GlobalScheduler` mapping task scheduling assignments across federation links.
+- `CrossClusterReplicationEngine` replicating snapshots and node metrics out-of-band.
+- `FederationService` exposing join handshake query routes.
+- Message type constants 122-131 mapping federation join, state sync, and status report queries.
+- ADR 0020 documenting multi-cluster routing models and replication sync.
+- 10 automated tests; 212/212 total tests passing; mypy strict clean.
