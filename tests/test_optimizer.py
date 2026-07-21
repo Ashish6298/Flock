@@ -1,20 +1,16 @@
-"""Unit tests for OptimizationEngine."""
+"""Unit tests for AutonomousOptimizationEngine."""
 
-from flock.orchestrator.models import ClusterSnapshot
-from flock.orchestrator.optimizer import OptimizationEngine
+from flock.ai.optimizer import AutonomousOptimizationEngine
 
 
-def test_optimizer_rebalances_imbalanced_cluster() -> None:
-    optimizer = OptimizationEngine(balance_threshold=30.0)
+def test_optimizer_actions_generation() -> None:
+    engine = AutonomousOptimizationEngine()
 
-    # Imbalanced snapshot
-    snapshot = ClusterSnapshot(
-        timestamp=0.0,
-        active_nodes=["node-1", "node-2"],
-        task_count=10,
-        avg_utilization=85.0,
-    )
+    # High CPU triggers scale and task migration actions
+    plan = engine.generate_plan({"cpu_load": 0.85, "memory_load": 0.5})
+    assert "SCALE_UP_REPLICAS" in plan.actions
+    assert "MIGRATE_HEAVY_TASKS" in plan.actions
 
-    plan = optimizer.calculate_rebalance(snapshot)
-    assert plan is not None
-    assert plan.tasks_to_migrate == {"task-x": "node-1"}
+    # High memory triggers cache purge
+    plan_mem = engine.generate_plan({"cpu_load": 0.3, "memory_load": 0.9})
+    assert "PURGE_EXPIRED_CACHES" in plan_mem.actions

@@ -244,3 +244,154 @@ All notable changes to the Flock project will be documented here.
 - Message type constants 152-161 mapping topic creation, publishes, commits, and status queries.
 - ADR 0023 documenting partition managers and offset trackers.
 - 7 automated tests; 235/235 total tests passing; mypy strict clean.
+
+## [1.8.0] - 2026-07-21
+
+### Added
+- Distributed API Gateway, REST/gRPC Interface & Developer SDK Framework package (`src/flock/api/`).
+- Immutable `ApiRequest`, `ApiResponse`, `ApiError`, `ApiRoute`, `ApiContext`, `ApiKey`, `SdkRequest`, `SdkResponse`, and `OpenApiDocument` models.
+- `ApiRouter` tracking and dispatching path patterns.
+- `RequestValidator` checking body bounds and header fields.
+- `ResponseSerializer` serializing Python objects to JSON.
+- `ApiGateway` managing keys and rate limits.
+- `OpenApiGenerator` compiling Swagger specs.
+- `SdkGenerator` creating client bindings.
+- `ApiService` exposing request endpoints on the message bus.
+- Message type constants 162-171 mapping requests, responses, and OpenAPI/SDK syncs.
+- ADR 0024 documenting gateway routers and SDK generation.
+- 9 automated tests; 244/244 total tests passing; mypy strict clean.
+
+## [1.9.0] - 2026-07-21
+
+### Added
+- Distributed Plugin Runtime, Extension Framework & Dynamic Module System package (`src/flock/plugins/`).
+- Immutable `PluginManifest`, `PluginConfiguration`, `PluginHealthReport`, and `PluginContext` models.
+- `PluginRegistry` tracking installations and active flags thread-safely.
+- `PluginLoader` calling dynamic initialize and unload hooks.
+- `PluginSandbox` executing actions within permission constraints.
+- `PluginDependencyResolver` validating DAG topological orderings.
+- `PluginService` exposing remote installation message routes.
+- Message type constants 172-181 mapping plugin installs, updates, and configuration syncs.
+- ADR 0025 documenting plugin sandboxes and topological resolvers.
+- 6 automated tests; 250/250 total tests passing; mypy strict clean.
+
+## [2.0.0] - 2026-07-21
+
+### Added
+- Distributed Service Mesh, Intelligent Networking & Traffic Management Framework package (`src/flock/mesh/`).
+- Immutable `ServiceEndpoint`, `MeshService`, `VirtualService`, `CircuitBreaker`, and `ConnectionSession` models.
+- `ServiceRegistry` tracking registered endpoints thread-safely.
+- `TrafficRouter` choosing endpoints matching percentage weights.
+- `CircuitBreakerEngine` implementing failures cooldown limits.
+- `LoadBalancingEngine` selecting hosts using Round Robin or Least Connections.
+- `MeshServiceEngine` exposing name discovery endpoints.
+- Message type constants 182-191 mapping service registries, discovery queries, and route updates.
+- ADR 0026 documenting circuit breakers and weighted load balancers.
+- 7 automated tests; 257/257 total tests passing; mypy strict clean.
+
+## [2.1.0] - 2026-07-21
+
+### Added
+- Enterprise Deployment Platform, Kubernetes Operator & Infrastructure Automation package (`src/flock/deployment/`).
+- Immutable `DeploymentDefinition`, `DeploymentRevision`, `RolloutState`, and `InfrastructureTemplate` models.
+- `DeploymentRegistry` tracking revision histories and deployment configurations.
+- `InfrastructureTemplateEngine` rendering Docker Compose and Kubernetes specs.
+- `DeploymentPlanner` sorting step tasks topologically.
+- `RolloutEngine` monitoring rollout increments.
+- `KubernetesOperatorEngine` producing CRD and Deployment manifests.
+- `DockerDeploymentEngine` compiling Compose manifests.
+- `DeploymentController` orchestrating rolling updates and rollbacks.
+- `DeploymentService` exposing sync creation endpoints.
+- Message type constants 192-201 mapping deployments, rollbacks, and scale statuses.
+- ADR 0027 documenting deployment operators and template engines.
+- 11 automated tests; 268/268 total tests passing; mypy strict clean.
+
+## [2.2.0] - 2026-07-21
+
+### Added
+- Distributed Serverless Runtime, Function Execution Engine & Event-Driven Compute package (`src/flock/functions/`).
+- Immutable `FunctionDefinition`, `InvocationRequest`, `InvocationResult`, `TriggerDefinition`, and `FunctionMetrics` models.
+- `FunctionRegistry` indexing handler metadata configurations thread-safely.
+- `RuntimeEngine` compiling and evaluating code payloads dynamically.
+- `InvocationEngine` routing execution requests.
+- `TriggerEngine` matching EventBus changes to handlers.
+- `AutoScalingEngine` evaluating scaling metrics replicas limits.
+- `FunctionVersionManager` selecting versions based on splits weights.
+- `ExecutionRecorder` indexing invocation outcome histories.
+- `FunctionService` exposing registration endpoints on message bus.
+- Message type constants 202-211 mapping function registries, invokes, and metrics reports.
+- ADR 0028 documenting execution runtimes and version traffic splits.
+- 12 automated tests; 280/280 total tests passing; mypy strict clean.
+
+## [2.3.0] - 2026-07-21
+
+### Added
+- Distributed Data Grid, Distributed Cache & Object Storage Framework package (`src/flock/datagrid/`).
+- Immutable `CacheEntry`, `KeyValueRecord`, `ObjectRecord`, `BucketDefinition`, `LockLease`, `CollectionDefinition`, and `IndexDefinition` models.
+- `DataGridRegistry` cataloging namespaces and buckets thread-safely.
+- `DistributedCacheEngine` handling key-value evictions with TTL limits.
+- `KeyValueEngine` managing versioned transactional compare-and-swap mutations.
+- `ObjectStorageEngine` writing large payloads bounded by size limits.
+- `IndexEngine` registering secondary key indexes.
+- `DistributedLockManager` tracking lease mutex locks.
+- `ReplicationCoordinator` resolving synchronization markers.
+- `DataLifecycleManager` purging expired keys.
+- `DataGridService` exposing sync write/query handlers on message bus.
+- Message type constants 212-221 mapping KV put/get, lock leases, and sync states.
+- ADR 0029 documenting transactional key-value engines and lock managers.
+- 11 automated tests; 291/291 total tests passing; mypy strict clean.
+
+## [2.4.0] - 2026-07-21
+
+### Added
+- Distributed Query Engine, SQL Processing & Analytics Framework package (`src/flock/query/`).
+- Immutable `Query`, `QueryResult`, `ExecutionPlan`, `ExecutionStage`, `ExecutionStatistics`, `TableSchema`, `CatalogEntry`, `QueryProgress`, `QueryMetrics`, `QueryContext`, `FunctionMetadata`, and `AggregationResult` models.
+- `QueryCatalog` cataloging table schemas and descriptors.
+- `QueryParser` converting SELECT strings into AST maps.
+- `QueryPlanner` creating execution plans.
+- `QueryOptimizer` optimizing filter stages (predicate pushdown).
+- `QueryFunctionRegistry` indexing built-in mathematical functions.
+- `AggregationEngine` evaluating aggregates COUNT/SUM/AVG.
+- `QueryExecutor` scanning and executing plans.
+- `QueryService` exposing SQL execute handlers on message bus.
+- Message type constants 222-231 mapping queries, cancellations, and progress syncs.
+- ADR 0030 documenting query parser AST maps and optimizers.
+- 13 automated tests; 304/304 total tests passing; mypy strict clean.
+
+## [2.5.0] - 2026-07-21
+
+### Added
+- Distributed AI Intelligence, Predictive Scheduling & Autonomous Optimization Framework package (`src/flock/ai/`).
+- Immutable `PredictionRequest`, `PredictionResult`, `OptimizationPlan`, `ClusterAnalysis`, `ForecastModel`, `ForecastResult`, `Recommendation`, `LearningSnapshot`, `ModelStatistics`, `NodePrediction`, `WorkloadProfile`, `AnomalyReport`, `OptimizationMetrics`, `ClusterIntelligenceReport`, and `ModelMetadata` models.
+- `MachineLearningPredictionEngine` predicting workloads using weight vectors.
+- `PredictiveScheduler` recommending lowest loaded nodes.
+- `AutonomousOptimizationEngine` generating tuning actions plans.
+- `ClusterIntelligenceEngine` computing utilization metrics averages.
+- `AnomalyDetectionEngine` checking threshold boundaries limits.
+- `ForecastEngine` extrapolating trend values.
+- `AIRecommendationEngine` compiling config suggestions.
+- `LearningEngine` iterating model parameters training updates.
+- `AIService` exposing predictions handlers on message bus.
+- Message type constants 232-241 mapping predictions, anomalies, and model syncs.
+- ADR 0031 documenting predictive models and anomaly detection.
+- 17 automated tests; 320/320 total tests passing; mypy strict clean.
+
+## [2.6.0] - 2026-07-21
+
+### Added
+- Enterprise CLI, Interactive REPL & Cluster Management Console package (`src/flock/cli/`).
+- Immutable `CommandDefinition`, `CommandRequest`, `CommandResponse`, `CommandContext`, `ExecutionResult`, `ExecutionProgress`, `SessionMetadata`, `ProfileDefinition`, `ConfigurationModel`, `CompletionCandidate`, `CommandHistory`, `OutputFormat`, `ClusterContext`, `AuthenticationContext`, `CliMetrics`, and `CliStatistics` models.
+- `CommandRegistry` cataloging operational command templates.
+- `CommandParser` splitting commands into arguments list tokens.
+- `ReplEngine` tracking session variables parameters.
+- `AutoCompleteEngine` matching candidate prefixes.
+- `CommandFormatter` serializing data outcomes in YAML/JSON formatting.
+- `ConfigurationManager` managing cluster context targets endpoints.
+- `ProfileManager` managing username identity definitions.
+- `HistoryLogger` recording commands run logs.
+- `SessionManager` validating token lifetime expirations.
+- `CommandExecutionEngine` verifying active user roles permissions.
+- `CliService` dispatching command requests handlers on message bus.
+- Message type constants 242-251 mapping commands, completions, and sessions.
+- ADR 0032 documenting CLI command execution registries and parsers.
+- 20 automated tests; 340/340 total tests passing; mypy strict clean.
