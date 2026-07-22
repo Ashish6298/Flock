@@ -1,0 +1,23 @@
+name: Bug Report
+description: File a bug report to help us improve Flock.
+labels: [bug]
+body:
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Share a step-by-step reproduction path.
+      placeholder: |
+        1. Initialize cluster
+        2. Run task
+        3. See error
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment Info
+      description: OS version, Python version, Flock version.
+      placeholder: Windows, Python 3.11, Flock v1.0.0
+    validations:
+      required: true

@@ -1,7 +1,7 @@
 [project]
 name = "flock-core"
-version = "0.1.0"
-description = "Brokerless, peer-to-peer distributed task execution framework for Python"
+version = "1.0.0"
+description = "Federated, secure, and AI-optimized distributed computing platform"
 readme = "README.md"
 requires-python = ">=3.11"
 authors = [

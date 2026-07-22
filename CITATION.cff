@@ -1,0 +1,8 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - name: "Flock Open Source Project Team"
+title: "Flock: Federated Distributed Computing Platform"
+version: 1.0.0
+date-released: 2026-07-22
+url: "https://github.com/Ashish6298/Flock"
