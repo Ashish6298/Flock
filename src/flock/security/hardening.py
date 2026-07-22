@@ -34,7 +34,8 @@ class HardeningEngine:
                     except Exception:
                         pass
                 else:
-                    is_admin = os.getuid() == 0  # type: ignore[attr-defined]
+                    _getuid = getattr(os, "getuid", None)
+                    is_admin = _getuid is not None and _getuid() == 0
                 
                 if is_admin:
                     warnings.append("Runtime is running with Administrator/Root privileges (least-privilege violation).")
