@@ -1,66 +1,274 @@
-# Byte-compiled / optimized / DLL files
+# =============================================================================
+# Flock v1.0.0 — .gitignore
+# =============================================================================
+# Covers: Python build artifacts, virtual environments, IDE state, OS files,
+# secrets/credentials, CI/CD caches, packaging outputs, local dev envs,
+# test artifacts, and Flock-specific generated files.
+# =============================================================================
+
+
+# -----------------------------------------------------------------------------
+# SECRETS & CREDENTIALS  (never commit these)
+# -----------------------------------------------------------------------------
+.env
+.env.*
+*.env
+.env.local
+.env.production
+.env.staging
+secrets/
+credentials/
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+*.asc
+*.gpg
+*.token
+api_keys.txt
+api_keys.json
+auth.json
+service_account.json
+*_secret*
+*_credentials*
+*_private*
+token.txt
+.netrc
+.pypirc
+
+
+# -----------------------------------------------------------------------------
+# PYTHON BYTE-COMPILED / OPTIMIZED / CACHE
+# -----------------------------------------------------------------------------
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyo
+*.pyd
 
-# C extensions
-*.so
 
-# Distribution / packaging
+# -----------------------------------------------------------------------------
+# PYTHON PACKAGING & DISTRIBUTION
+# -----------------------------------------------------------------------------
 build/
-develop-eggs/
 dist/
-downloads/
-eggs/
+sdist/
+wheels/
+*.egg-info/
+*.egg
 .eggs/
+eggs/
+develop-eggs/
+downloads/
+parts/
+var/
 lib/
 lib64/
-parts/
-sdist/
-var/
-wheels/
 share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
 MANIFEST
+.installed.cfg
 
-# PyInstaller
-#  Usually these files are written by a python script, etc.
-*.manifest
-*.spec
-
-# Installer logs
+# setuptools / pip artifacts
 pip-log.txt
 pip-delete-this-directory.txt
+pip-wheel-metadata/
+*.whl
+*.tar.gz
 
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nosenv
-.nw/
-.pytest_cache/
-.mypy_cache/
-.pyre/
-.pytype/
-cov-report/
-tests/reports/
 
-# Environments
-.env
-.venv
-env/
+# -----------------------------------------------------------------------------
+# VIRTUAL ENVIRONMENTS  (all local venvs used during dev / CI / publish)
+# -----------------------------------------------------------------------------
+.venv/
 venv/
+env/
 ENV/
 env.bak/
 venv.bak/
 
-# IDEs
+# Project-specific local virtual environments created during testing / publish
+final_verify/
+publish_test/
+verify_testpypi/
+
+
+# -----------------------------------------------------------------------------
+# STATIC ANALYSIS & TYPE CHECKING
+# -----------------------------------------------------------------------------
+.mypy_cache/
+.pyre/
+.pytype/
+.ruff_cache/
+
+
+# -----------------------------------------------------------------------------
+# TESTING & COVERAGE
+# -----------------------------------------------------------------------------
+.pytest_cache/
+.tox/
+.nox/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+coverage.json
+*.cover
+*.py,cover
+cov-report/
+junit*.xml
+test-results/
+tests/reports/
+
+
+# -----------------------------------------------------------------------------
+# BUILD TOOLS & COMPILERS
+# -----------------------------------------------------------------------------
+*.so
+*.manifest
+*.spec
+
+
+# -----------------------------------------------------------------------------
+# PYINSTALLER
+# -----------------------------------------------------------------------------
+*.manifest
+*.spec
+
+
+# -----------------------------------------------------------------------------
+# SPHINX / DOCUMENTATION BUILDS
+# -----------------------------------------------------------------------------
+docs/_build/
+docs/api/
+site/
+.docutils/
+
+
+# -----------------------------------------------------------------------------
+# JUPYTER NOTEBOOKS (outputs & checkpoints)
+# -----------------------------------------------------------------------------
+.ipynb_checkpoints/
+*.ipynb
+
+
+# -----------------------------------------------------------------------------
+# IDE & EDITOR STATE
+# -----------------------------------------------------------------------------
+# VS Code
 .vscode/
+*.code-workspace
+
+# JetBrains (PyCharm, IntelliJ, etc.)
 .idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Vim / Neovim
 *.swp
 *.swo
+*~
+.netrwhist
 
-# Project custom temp files
+# Emacs
+\#*\#
+.\#*
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+
+# -----------------------------------------------------------------------------
+# OPERATING SYSTEM FILES
+# -----------------------------------------------------------------------------
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+*~
+
+
+# -----------------------------------------------------------------------------
+# LOGS & RUNTIME DATA
+# -----------------------------------------------------------------------------
+*.log
+*.log.*
+logs/
+*.pid
+*.seed
+*.pid.lock
+
+
+# -----------------------------------------------------------------------------
+# FLOCK-SPECIFIC GENERATED / INTERNAL FILES
+# -----------------------------------------------------------------------------
+# Internal project state generated by the build & release toolchain
+PROJECT_STATE.json
+
+# Local agent / AI tooling configuration (not for version control)
 .agents/
 .gemini/
+
+# Generated release artifacts and audit scratch files
+docs/audits/scratch/
+release_artifacts/
+*.sbom.json
+*.release_manifest.json
+
+
+# -----------------------------------------------------------------------------
+# CI/CD CACHES & RUNNER ARTIFACTS
+# -----------------------------------------------------------------------------
+.cache/
+.github/runner/
+runner-work/
+
+
+# -----------------------------------------------------------------------------
+# PROFILING & BENCHMARKS (generated data, not source)
+# -----------------------------------------------------------------------------
+*.prof
+*.lprof
+bench_results/
+benchmarks/results/
+
+
+# -----------------------------------------------------------------------------
+# DOCKER & CONTAINERS (local build state)
+# -----------------------------------------------------------------------------
+.dockerignore.local
+
+
+# -----------------------------------------------------------------------------
+# TEMPORARY & SCRATCH FILES
+# -----------------------------------------------------------------------------
+tmp/
+temp/
+scratch/
+*.tmp
+*.bak
+*.orig
+*.rej
+*.swp

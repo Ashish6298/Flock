@@ -1,5 +1,5 @@
 [project]
-name = "flock-core"
+name = "flock-p2p"
 version = "1.0.0"
 description = "Federated, secure, and AI-optimized distributed computing platform"
 readme = "README.md"
