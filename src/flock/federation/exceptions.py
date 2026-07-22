@@ -25,3 +25,12 @@ class FederationPolicyViolationError(FederationError):
 class GlobalSchedulingError(FederationError):
     """Raised when global task scheduling fails."""
     pass
+
+class TrustVerificationError(FederationError):
+    """Raised when federation trust establishment or signature verification fails."""
+    pass
+
+class TopologyDiscoveryError(FederationError):
+    """Raised when cross-region topology discovery or synchronization fails."""
+    pass
+

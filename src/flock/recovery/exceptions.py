@@ -29,3 +29,32 @@ class RecoveryStateError(RecoveryError):
 class UnrecoverableTaskError(RecoveryError):
     """Raised when a task is determined to be non-retryable."""
     pass
+
+class SnapshotError(RecoveryError):
+    """Raised when cluster state snapshot creation, deletion, or validation fails."""
+    pass
+
+class BackupError(RecoveryError):
+    """Raised when writing, compression, or cataloging of backups fails."""
+    pass
+
+class RestoreError(RecoveryError):
+    """Raised when cluster or node state restoration fails."""
+    pass
+
+class CheckpointError(RecoveryError):
+    """Raised when distributed checkpoints fail validation or synchronization."""
+    pass
+
+class IntegrityError(RecoveryError):
+    """Raised when backup data checksum or digital signature verification fails."""
+    pass
+
+class RetentionError(RecoveryError):
+    """Raised when retention policy execution or cleanup fails."""
+    pass
+
+class ContinuityError(RecoveryError):
+    """Raised when failover orchestration or business continuity plans fail."""
+    pass
+

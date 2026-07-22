@@ -25,3 +25,36 @@ class TokenExpiredError(SecurityError):
 class KeyRotationError(SecurityError):
     """Raised when cryptographic key rotation update fails."""
     pass
+
+class PolicyEvaluationError(SecurityError):
+    """Raised when security policy evaluation fails or is blocked."""
+    pass
+
+class CertificateValidationError(SecurityError):
+    """Raised when x509 or trust chain validation fails."""
+    pass
+
+class SecretStorageError(SecurityError):
+    """Raised when secret retrieval, writing, or provider access fails."""
+    pass
+
+class TamperDetectionError(SecurityError):
+    """Raised when audit log or data tampering is detected."""
+    pass
+
+class ComplianceControlError(SecurityError):
+    """Raised when a compliance rule or control validation fails."""
+    pass
+
+class IntrusionDetectionAlert(SecurityError):
+    """Raised/triggered when suspicious behaviors or attack signatures are matched."""
+    pass
+
+class QuarantineError(SecurityError):
+    """Raised when quarantine isolation or recovery fails."""
+    pass
+
+class SecurityHardeningError(SecurityError):
+    """Raised when runtime hardening or environment validation fails."""
+    pass
+
