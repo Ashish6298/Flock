@@ -202,12 +202,18 @@ class ProfilingEngine:
         with self._lock:
             operations = list(self._snapshots.keys())
 
-        summaries = []
+        summaries: List[Dict[str, Any]] = []
         for op in operations:
             s = self.summary(op)
             if s:
                 summaries.append({"operation": op, "mean_ms": s["mean"]})
-        summaries.sort(key=lambda x: x["mean_ms"], reverse=True)
+        
+        def _get_mean_ms(x: Dict[str, Any]) -> float:
+            val = x["mean_ms"]
+            assert isinstance(val, float)
+            return val
+
+        summaries.sort(key=_get_mean_ms, reverse=True)
         return summaries[:top_n]
 
     def list_operations(self) -> List[str]:

@@ -9,7 +9,7 @@ HTTP/WebSocket layer can serialise as needed.
 from __future__ import annotations
 
 import time
-from typing import Any, Dict, List
+from typing import Any, Callable, Dict, List
 
 from flock.dashboard.exceptions import RenderError
 from flock.dashboard.models import (
@@ -65,7 +65,9 @@ class DashboardRenderer:
                 f"data source error – {result.error}"
             )
 
-        dispatch: Dict[str, Any] = {
+        dispatch: Dict[
+            str, Callable[[WidgetDefinition, DataSourceResult], Dict[str, Any]]
+        ] = {
             "chart": self.render_chart,
             "gauge": self.render_gauge,
             "stat": self.render_stat,
