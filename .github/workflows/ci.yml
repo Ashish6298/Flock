@@ -20,7 +20,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip setuptools wheel
-        pip install pytest pytest-asyncio mypy structlog pydantic black ruff
+        pip install pytest pytest-asyncio mypy structlog pydantic msgpack black ruff
 
     - name: Install package (editable)
       run: |
