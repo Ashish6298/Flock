@@ -1,91 +1,197 @@
 <div align="center">
 
-# 🐦 Flock
 
-### Enterprise-Grade Federated Distributed Computing Platform
+# 🐦 Flock &nbsp;•&nbsp; A Distributed Computing Framework for Python
 
-[![PyPI version](https://img.shields.io/pypi/v/flock-p2p.svg?color=blue&label=flock-p2p)](https://pypi.org/project/flock-p2p/)
-[![Python](https://img.shields.io/pypi/pyversions/flock-p2p.svg)](https://pypi.org/project/flock-p2p/)
-[![Downloads](https://static.pepy.tech/badge/flock-p2p)](https://pepy.tech/project/flock-p2p)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![CI](https://github.com/Ashish6298/Flock/actions/workflows/ci.yml/badge.svg)](https://github.com/Ashish6298/Flock/actions)
-[![mypy](https://img.shields.io/badge/mypy-strict-blue)](https://mypy-lang.org/)
-[![Tests](https://img.shields.io/badge/tests-629%20passing-brightgreen)](#testing)
-**Flock** is a production-ready, fully typed, transport-independent distributed computing framework built in pure Python. It provides everything needed to run a multi-node cluster — from Raft consensus and leader election to AI-driven scheduling, enterprise security, policy-as-code governance, multi-cloud federation, and disaster recovery — all in a single cohesive package.
+<br>
 
-[Installation](#installation) · [Quick Start](#quick-start) · [The Story Behind Flock](#the-story-behind-flock) · [Who Is Flock For?](#who-is-flock-for) · [Architecture](#architecture) · [API Reference](#api-reference) · [Contributing](#contributing)
+<table>
+<tr>
+<td align="center">
+
+[![PyPI](https://img.shields.io/pypi/v/flock-p2p.svg?style=for-the-badge&color=3776AB&label=PyPI&logo=pypi&logoColor=white)](https://pypi.org/project/flock-p2p/)
+
+</td>
+<td align="center">
+
+[![Python](https://img.shields.io/pypi/pyversions/flock-p2p.svg?style=for-the-badge&logo=python&logoColor=white)](https://pypi.org/project/flock-p2p/)
+
+</td>
+<td align="center">
+
+[![Downloads](https://static.pepy.tech/badge/flock-p2p?style=for-the-badge)](https://pepy.tech/project/flock-p2p)
+
+</td>
+</tr>
+<tr>
+<td align="center">
+
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
+
+</td>
+<td align="center">
+
+[![CI](https://img.shields.io/github/actions/workflow/status/Ashish6298/Flock/ci.yml?style=for-the-badge&label=CI&logo=githubactions&logoColor=white)](https://github.com/Ashish6298/Flock/actions)
+
+</td>
+<td align="center">
+
+[![Tests](https://img.shields.io/badge/tests-629%20passing-brightgreen?style=for-the-badge&logo=pytest&logoColor=white)](#testing)
+
+</td>
+</tr>
+</table>
+
+[**Get Started**](#installation) &nbsp;•&nbsp; [Quick Start](#quick-start) &nbsp;•&nbsp; [Architecture](#architecture) &nbsp;•&nbsp; [API Reference](#api-reference) &nbsp;•&nbsp; [Contributing](#contributing)
 
 </div>
 
----
+<br>
+
+## Overview
+
+Flock is a fully-typed Python framework for building systems that run across multiple machines. It bundles the components a distributed system normally needs — Raft consensus, leader election, cluster membership, a message bus, scheduling, and security — into one importable package, so you wire up services with dependency injection instead of standing up separate infrastructure.
+
+It's built around 42 focused subsystems (`flock.consensus`, `flock.scheduler`, `flock.security`, `flock.workflow`, and others), each independently testable and typed under `mypy --strict`.
+
+| | |
+|---|---|
+| **Language** | Python 3.11+ |
+| **Core dependency footprint** | `pydantic`, `structlog`, `msgpack` |
+| **Consensus model** | Raft (leader election, log replication, snapshots) |
+| **Transport** | Pluggable — TCP built in |
+| **Install** | `pip install flock-p2p` |
+
+<br>
+
 
 ## Table of Contents
+<table width="1000">
+<tr>
+<td width="330" valign="top">
 
-- [The Story Behind Flock](#the-story-behind-flock)
-- [What Problem Does Flock Solve?](#what-problem-does-flock-solve)
-- [Who Is Flock For?](#who-is-flock-for)
-- [How Does Flock Help You?](#how-does-flock-help-you)
+<b>🚀 Getting Started</b>
+
+- [Overview](#overview)
+- [Why Flock](#why-flock)
 - [Features](#features)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
+
+</td>
+
+<td width="340" valign="top">
+
+<b>🏗️ Reference</b>
+
 - [Architecture](#architecture)
 - [Subsystems](#subsystems)
 - [API Reference](#api-reference)
 - [Configuration](#configuration)
 - [Examples](#examples)
+
+</td>
+
+<td width="330" valign="top">
+
+<b>📦 Project</b>
+
 - [Testing](#testing)
 - [Contributing](#contributing)
+- [Security](#security)
 - [License](#license)
+- [Citation](#citation)
 
----
+</td>
+</tr>
+</table>
+
+<br>
 
 ## The Story Behind Flock
 
-Every large software system eventually hits the same wall: **a single computer is no longer enough**.
+<div align="center">
 
-Maybe you are running a startup and your server is struggling under the load of thousands of users. Maybe you are a developer trying to process massive amounts of data faster than one machine can handle. Maybe you are an engineer at a company that needs its services to stay online even when hardware fails. Whatever the scenario, the answer is always the same — you need to run your software across **multiple computers working together as one**.
+### 💡 A single computer is no longer enough.
 
-This is called **distributed computing**, and it is the backbone of every major technology product in the world today — Netflix, Google, WhatsApp, Uber, and thousands of others all rely on it. But here is the painful truth that most tutorials and blog posts do not tell you:
+</div>
 
-> **Building a distributed system from scratch is one of the hardest things in software engineering.**
+Whether it's traffic outgrowing one server, data too big for one machine, or uptime that can't depend on a single point of failure — the fix is always the same: run your software across **multiple computers working together as one.**
 
-It is not just about running the same code on two servers. You need to solve problems like:
-- What happens when one server crashes mid-operation? Does the data get corrupted?
-- Which server is "in charge"? How do they agree on anything without a single source of truth?
-- How do you keep your data consistent when it lives on five different machines simultaneously?
-- How do you secure communication between machines so attackers cannot intercept it?
-- How do you know when something is going wrong before your users do?
+That's **distributed computing**. It quietly powers Netflix, Google, WhatsApp, and Uber. But here's what most tutorials leave out:
 
-These are unsolved problems that have occupied computer scientists for decades. Companies like Google and Amazon have spent billions of dollars and thousands of engineer-years building internal solutions. Most developers and small teams simply cannot afford to do the same.
+> ### "Building a distributed system from scratch is one of the hardest things in software engineering."
 
-**That is exactly why Flock was built.**
+<br>
 
-Flock was created out of a deeply personal frustration: why should a developer have to spend months or years building the infrastructure layer before they can even start working on the actual product? Why are the tools that solve these hard problems either too expensive, too complex, locked behind enterprise paywalls, or non-existent in the Python ecosystem?
+<table width="100%">
+<tr>
+<td align="center" width="20%">
 
-Flock is the answer to that question — a **complete, open-source, production-grade distributed computing platform** that gives any Python developer access to the same calibre of infrastructure that was previously only available inside the largest tech companies in the world. You get it in a single `pip install`, with clean APIs, comprehensive documentation, and 629 tests proving it works.
+**🩹**
+**Fault Tolerance**
 
----
+<sub>What happens when a server crashes mid-op?</sub>
+
+</td>
+<td align="center" width="20%">
+
+**👑**
+**Leader Election**
+
+<sub>Who's in charge, with no single source of truth?</sub>
+
+</td>
+<td align="center" width="20%">
+
+**🔄**
+**Consistency**
+
+<sub>How do 5 machines agree on the same data?</sub>
+
+</td>
+<td align="center" width="20%">
+
+**🔒**
+**Security**
+
+<sub>How do you stop traffic interception?</sub>
+
+</td>
+<td align="center" width="20%">
+
+**📊**
+**Observability**
+
+<sub>How do you catch failures before users do?</sub>
+
+</td>
+</tr>
+</table>
+
+<br>
+
+These problems have occupied computer scientists for decades. Google and Amazon threw years of engineering effort at solving them internally — most teams don't have that runway.
+
+**That's why Flock exists** — one `pip install` for infrastructure that used to take enterprise teams years to build.
+
+<details>
+<summary><b>📖 Read the full story</b></summary>
+<br>
+
+Flock was born from a simple frustration: developers shouldn't have to spend months building infrastructure before they can start building their actual product — especially when the Python ecosystem had no single, cohesive package that solved this.
+
+The tools that solve consensus, replication, security, and observability have always existed — but scattered across research papers, expensive enterprise platforms, or locked inside the infrastructure teams of large tech companies. Nothing brought them together for the average Python developer.
+
+Flock closes that gap: open-source, fully typed, and built to give any developer the same caliber of distributed-systems infrastructure that used to be exclusive to the biggest engineering teams in the world.
+
+</details>
+
+<br>
 
 ## What Problem Does Flock Solve?
 
-Let us use a simple analogy to explain what Flock does at its core.
-
-### The Restaurant Kitchen Analogy
-
-Imagine you run a restaurant. On a quiet Tuesday, one chef can handle everything — taking orders, cooking, plating, and cleaning up. But on a Friday night with 200 customers, that one chef becomes a bottleneck. You need **multiple chefs working together**.
-
-But now you have new problems:
-- **Who is the head chef?** Someone needs to coordinate. If the head chef goes home sick, who takes over? (This is the *leader election* problem)
-- **What if a chef starts a dish but drops it?** Another chef needs to pick up exactly where they left off. (This is the *fault tolerance* problem)
-- **How do you make sure two chefs don't make the same dish twice?** They need to communicate and agree. (This is the *consensus* problem)
-- **How do you prevent the dishwasher from accessing the safe?** Different roles have different permissions. (This is the *security and RBAC* problem)
-- **How do you know which chef is overloaded?** You need to monitor everyone in real time. (This is the *observability* problem)
-
-Flock solves all of these problems — not just for restaurant kitchens, but for any software system that needs to run across multiple servers.
-
-### In Technical Terms
-
-Flock provides a **complete distributed systems stack** in Python:
+Flock provides a **complete distributed systems stack** in Python — mapping familiar real-world problems to concrete solutions:
 
 | Real-World Problem | Computer Science Term | Flock Solution |
 |---|---|---|
@@ -100,176 +206,448 @@ Flock provides a **complete distributed systems stack** in Python:
 | Run jobs across many servers | Distributed Scheduling | `SchedulerService` + `PlacementEngine` |
 | Recover from disasters | Disaster Recovery | `RecoveryService` with backups + PITR |
 
----
+<details>
+<summary><b>🍳 Prefer an analogy? The Restaurant Kitchen Problem</b></summary>
+<br>
+
+Imagine running a restaurant. On a quiet Tuesday, one chef handles everything. On a Friday night with 200 customers, that one chef becomes a bottleneck — you need **multiple chefs working together**, which raises new problems:
+
+- **Who's the head chef**, and who takes over if they go home sick? → *leader election*
+- **A chef drops a dish mid-prep** — who picks it up where it was left off? → *fault tolerance*
+- **How do two chefs avoid cooking the same order twice?** → *consensus*
+- **How do you stop the dishwasher from accessing the safe?** → *security & RBAC*
+- **How do you know which chef is overloaded, in real time?** → *observability*
+
+Flock solves all of these — not for kitchens, but for any system that needs to run across multiple servers.
+
+</details>
+
+<br>
 
 ## Who Is Flock For?
 
-Flock is designed to be useful across a wide spectrum — from a student learning distributed systems for the first time to an engineering team building production infrastructure for millions of users.
+Flock scales from a student reading source code for the first time to an enterprise team running hundreds of clusters.
 
-### 🎓 Students & Learners
+<table width="100%">
+<tr>
+<td align="center" width="18%">🎓 Students & Learners</td>
+<td align="center" width="23%">👨‍💻 Developers & Side Projects</td>
+<td align="center" width="21%">🏢 Startups & Small Teams</td>
+<td align="center" width="15%">🏭 Enterprise</td>
+<td align="center" width="25%">🔬 Researchers & Data Scientists</td>
+</tr>
+</table>
 
-If you are studying computer science or distributed systems and want to see a *real*, working implementation of concepts like Raft consensus, leader election, distributed state machines, and service meshes — Flock is a goldmine. Every subsystem is fully documented, strictly typed, and built following textbook best practices. You can read the source code and see exactly how these algorithms work in practice, not just in theory.
+<br>
+
+<details>
+<summary><b>🎓 Students & Learners</b></summary>
+<br>
+
+See a *real*, working implementation of Raft consensus, leader election, distributed state machines, and service meshes — not just theory. Every subsystem is documented, strictly typed, and built to textbook standards, so the source code doubles as a reference implementation.
 
 ```bash
 pip install flock-p2p
 python -c "from flock.consensus import ConsensusService; help(ConsensusService)"
 ```
 
-### 👨‍💻 Individual Developers & Side Projects
+</details>
 
-Building something that needs to run on more than one server? Instead of spending weeks reading papers on distributed consensus or debugging race conditions, install Flock and have a working distributed foundation in an afternoon. Focus on your actual product — let Flock handle the infrastructure.
+<details>
+<summary><b>👨‍💻 Individual Developers & Side Projects</b></summary>
+<br>
 
-**Use cases:**
-- A personal project that outgrows a single VPS
-- A home lab cluster (Raspberry Pi farm, etc.)
-- A distributed data processing pipeline
-- A multiplayer game server backend
-- A distributed web scraper or crawler
+Skip weeks of reading consensus papers and debugging race conditions — install Flock and have a working distributed foundation in an afternoon.
 
-### 🏢 Startups & Small Engineering Teams
+**Use cases:** personal projects outgrowing a single VPS · home lab clusters (Raspberry Pi farms) · distributed data pipelines · multiplayer game server backends · distributed web scrapers
 
-You have a great product idea and a small team. You cannot afford to hire a team of distributed systems PhDs, and you should not have to. Flock lets a team of 2–5 engineers build and operate a production-grade distributed system without becoming experts in every underlying algorithm. The hard parts — consensus, replication, security, observability — are already solved.
+</details>
 
-**Use cases:**
-- Multi-region SaaS deployment
-- Distributed task queue with guaranteed execution
-- Real-time data processing across multiple nodes
-- Highly available API backend with automatic failover
+<details>
+<summary><b>🏢 Startups & Small Engineering Teams</b></summary>
+<br>
 
-### 🏭 Enterprise & Large Organizations
+A team of 2–5 engineers doesn't need to become distributed-systems experts to run production infrastructure. Consensus, replication, security, and observability are already solved.
 
-Flock includes features specifically built for enterprise needs: multi-cloud federation, policy-as-code governance, compliance auditing, fleet management, role-based access control, secrets vaulting, intrusion detection, and a full control plane for managing hundreds of clusters. These are the same capabilities that companies typically build in-house over years at enormous cost.
+**Use cases:** multi-region SaaS deployment · distributed task queues with guaranteed execution · real-time multi-node data processing · highly available APIs with automatic failover
 
-**Use cases:**
-- Multi-cloud infrastructure spanning AWS, GCP, and Azure
-- Regulated industries requiring compliance auditing (HIPAA, SOC2, etc.)
-- Fleet management across hundreds of compute nodes
-- Enterprise-grade disaster recovery with point-in-time restore
-- Policy-enforced workload governance
+</details>
 
-### 🔬 Researchers & Data Scientists
+<details>
+<summary><b>🏭 Enterprise & Large Organizations</b></summary>
+<br>
 
-Need to distribute a machine learning training job across multiple GPUs or machines? Need to build a distributed data pipeline that processes terabytes of data? Flock provides the distributed execution substrate so you can focus on your algorithms, not the infrastructure.
+Built-in support for multi-cloud federation, policy-as-code governance, compliance auditing, fleet management, RBAC, secrets vaulting, and intrusion detection — capabilities most companies otherwise build in-house over years.
 
----
+**Use cases:** multi-cloud infrastructure across AWS/GCP/Azure · compliance auditing (HIPAA, SOC2) · fleet management across hundreds of nodes · disaster recovery with point-in-time restore · policy-enforced workload governance
+
+</details>
+
+<details>
+<summary><b>🔬 Researchers & Data Scientists</b></summary>
+<br>
+
+Distribute an ML training job across multiple GPUs or machines, or build a data pipeline that processes terabytes of data — Flock provides the distributed execution substrate so you can focus on the algorithm, not the infrastructure.
+
+</details>
+
+<br>
 
 ## How Does Flock Help You?
 
 ### The Traditional Approach (Without Flock)
 
-Here is what building a distributed system typically looks like without Flock:
+Building the same distributed foundation from scratch typically looks like this:
 
-**Month 1-2:** Research and implement a consensus algorithm (Raft or Paxos). Debug election edge cases. Handle split-brain scenarios.
+| Timeline | What You're Building | The Hard Part |
+|---|---|---|
+| **Month 1–2** | A consensus algorithm (Raft or Paxos) | Debugging election edge cases, split-brain scenarios |
+| **Month 3** | A membership registry | Heartbeats, node join/leave, network partitions |
+| **Month 4** | A message bus | Protocol design, serialization, versioning, backward compatibility |
+| **Month 5–6** | Security | TLS, authentication, authorization, secrets management |
+| **Month 7–8** | Observability | Metrics collection, distributed tracing, alerting |
+| **Month 9+** | *Finally* — your actual product | — |
 
-**Month 3:** Build a membership registry. Implement heartbeats. Handle node join/leave. Deal with network partitions.
+<div align="center">
 
-**Month 4:** Build a message bus. Design a protocol. Handle serialization, versioning, and backward compatibility.
+**⏱️ ~9 months before writing a single line of business logic — for a skilled team.**
 
-**Month 5-6:** Add security. Implement TLS, authentication, and authorization. Build secrets management.
+</div>
 
-**Month 7-8:** Add observability. Build metrics collection, distributed tracing, alerting.
+<br>
 
-**Month 9+:** Start working on your actual product.
-
-**Total time before writing business logic: 9+ months for a skilled team.**
-
-### The Flock Approach
+## The Flock Approach
 
 ```bash
 pip install flock-p2p   # 30 seconds
 ```
 
 ```python
-# 5 minutes to a working distributed system
+# A few minutes to a working distributed system
 from flock.consensus import ConsensusService
 from flock.events.bus import EventBus
 from flock.messaging.bus import MessageBus
 
 consensus = ConsensusService("node-1", membership, message_bus, event_bus)
 await consensus.start()
+
 # You now have Raft consensus, leader election, log replication,
 # fault tolerance, and event publishing. Start building your product.
 ```
 
-**Time to a working distributed foundation: Under an hour.**
+<div align="center">
 
-### The Difference in Numbers
+**⏱️ Time to a working distributed foundation: under an hour.**
 
-| Metric | Build Yourself | Use Flock |
+</div>
+
+<br>
+
+### The Difference, By the Numbers
+
+| Metric | Build Yourself | With Flock |
 |---|---|---|
 | Time to first working cluster | Months | Minutes |
-| Lines of infrastructure code | 50,000+ | 0 (it's already written) |
-| Tests covering edge cases | You write them all | 629 tests included |
-| Consensus algorithm correctness | Your responsibility | Battle-tested Raft |
-| Security vulnerabilities | Your responsibility | Hardened, audited |
-| Ongoing maintenance burden | High | Open-source community |
+| Infrastructure code you maintain | Thousands of lines | Already written |
+| Test coverage for edge cases | You write it all | 629 tests included |
+| Consensus algorithm correctness | Your responsibility | Implemented Raft, unit-tested |
+| Security posture | Your responsibility | Built-in mTLS, RBAC, secrets vault |
+| Ongoing maintenance | On you | Shared with the OSS community |
 
----
+<br>
 
-## Features
+## ✨ Features
 
-### Core Platform
-- ⚡ **Full Raft Consensus** — leader election, log replication, state machine, term management, and log compaction
-- 🌐 **Cluster Membership** — node discovery, heartbeat health monitoring, live membership registry
-- 🔄 **Distributed State Machine** — consistent replicated state with snapshotting and WAL (Write-Ahead Log)
-- 📡 **Transport-Independent Messaging** — pluggable transport layer (TCP built-in); message bus with typed routing
-- 🗂️ **DataGrid** — in-memory distributed KV store with replication, partitioning, and failover
+<div align="left">
 
-### Execution & Scheduling
-- 🧠 **AI-Powered Orchestration** — ML-based workload placement, predictive autoscaling, anomaly detection
-- 📋 **Workflow Engine** — DAG-based workflows with checkpointing, parallelism, and failure recovery
-- ⏰ **Advanced Scheduler** — cron, event-driven, and deadline-aware task scheduling
-- 🎯 **Constraint-Aware Placement** — CPU/memory/affinity/anti-affinity placement engine
+### **CORE PLATFORM**
 
-### Enterprise Infrastructure
-- 🔒 **Zero-Trust Security** — mTLS handshakes, RBAC, certificate management, credential rotation, intrusion detection
-- 🛡️ **Secrets Vault** — encrypted secret storage, key rotation, compliance auditing
-- 📊 **Full Observability** — distributed tracing, structured logging, metrics, alerts, profiling, dashboards
-- 🌍 **Multi-Cloud Federation** — cross-region cluster federation, latency-aware routing, trust handshakes
-- 🏛️ **Control Plane** — fleet management, cluster enrollment, organizational governance
-- 📜 **Policy-as-Code** — declarative policy compiler, rule engine, compliance enforcement, audit trails
-- 💾 **Disaster Recovery** — automated snapshots, incremental backups, PITR restore, continuity planning
-- 🛒 **Plugin Marketplace** — package registry, dependency resolution, sandboxed execution
-- 🚀 **Deployment Automation** — Docker/Kubernetes manifest generation, rolling updates, rollback
+</div>
+<div align="center">
+</tr></table>
+</div>
+<br>
+<table width="100%">
+<tr>
+<td align="center" width="20%">
 
-### Developer Experience
-- ✅ **629 tests** — full regression coverage across all 42 subsystems
-- 🔤 **100% typed** — `mypy --strict` clean across 390 source files
-- 📦 **Single install** — `pip install flock-p2p`
-- 🐍 **Python 3.11+** — modern Python, no legacy baggage
+### ⚡ **Full Raft Consensus**
 
----
+<sub>Leader election, log replication, state machine, term management, log compaction</sub>
 
-## Installation
+</td>
+<td align="center" width="20%">
+
+### 🌐 **Cluster Membership**
+
+<sub>Node discovery, heartbeat health monitoring, live membership registry</sub>
+
+</td>
+<td align="center" width="20%">
+
+### 🔄 **Distributed State Machine**
+
+<sub>Consistent replicated state with snapshotting and WAL</sub>
+
+</td>
+<td align="center" width="20%">
+
+### 📡 **Transport-Independent Messaging**
+
+<sub>Pluggable transport (TCP built-in); typed message routing</sub>
+
+</td>
+<td align="center" width="20%">
+
+### 🗂️ **DataGrid**
+
+<sub>In-memory distributed KV store — replication, partitioning, failover</sub>
+
+</td>
+</tr>
+</table>
+
+<br>
+
+<div align="left">
+
+### **EXECUTION & SCHEDULING**
+
+</div>
+<br>
+<table width="100%">
+<tr>
+<td align="center" width="25%">
+
+### 🧠 **AI-Powered Orchestration**
+
+<sub>ML-based placement, predictive autoscaling, anomaly detection</sub>
+
+</td>
+<td align="center" width="25%">
+
+### 📋 **Workflow Engine**
+
+<sub>DAG workflows with checkpointing, parallelism, failure recovery</sub>
+
+</td>
+<td align="center" width="25%">
+
+### ⏰ **Advanced Scheduler**
+
+<sub>Cron, event-driven, deadline-aware scheduling</sub>
+
+</td>
+<td align="center" width="25%">
+
+### 🎯 **Constraint-Aware Placement**
+
+<sub>CPU/memory/affinity/anti-affinity placement engine</sub>
+
+</td>
+</tr>
+</table>
+
+<br>
+
+<div align="left">
+
+### **ENTERPRISE INFRASTRUCTURE**
+
+</div>
+<br>
+<table width="100%">
+<tr>
+<td align="center" width="33%">
+
+### 🔒 **Zero-Trust Security**
+
+<sub>mTLS, RBAC, certificate management, credential rotation, intrusion detection</sub>
+
+</td>
+<td align="center" width="33%">
+
+### 🛡️ **Secrets Vault**
+
+<sub>Encrypted storage, key rotation, compliance auditing</sub>
+
+</td>
+<td align="center" width="33%">
+
+### 📊 **Full Observability**
+
+<sub>Tracing, structured logging, metrics, alerts, profiling, dashboards</sub>
+
+</td>
+</tr>
+<tr>
+<td align="center" width="33%">
+
+### 🌍 **Multi-Cloud Federation**
+
+<sub>Cross-region federation, latency-aware routing, trust handshakes</sub>
+
+</td>
+<td align="center" width="33%">
+
+### 🏛️ **Control Plane**
+
+<sub>Fleet management, cluster enrollment, org governance</sub>
+
+</td>
+<td align="center" width="33%">
+
+### 📜 **Policy-as-Code**
+
+<sub>Declarative policy compiler, rule engine, compliance enforcement</sub>
+
+</td>
+</tr>
+<tr>
+<td align="center" width="33%">
+
+### 💾 **Disaster Recovery**
+
+<sub>Automated snapshots, incremental backups, PITR restore</sub>
+
+</td>
+<td align="center" width="33%">
+
+### 🛒 **Plugin Marketplace**
+
+<sub>Package registry, dependency resolution, sandboxed execution</sub>
+
+</td>
+<td align="center" width="33%">
+
+### 🚀 **Deployment Automation**
+
+<sub>Docker/K8s manifests, rolling updates, rollback</sub>
+
+</td>
+</tr>
+</table>
+
+<br>
+
+<div align="left">
+
+### **DEVELOPER EXPERIENCE**
+
+</div>
+
+<table width="100%">
+<tr>
+<td align="center" width="25%">
+
+### ✅ **629 Tests**
+
+<sub>Full regression coverage, 42 subsystems</sub>
+
+</td>
+<td align="center" width="25%">
+
+### 🔤 **Fully Typed**
+
+<sub>`mypy --strict` clean, 390 source files</sub>
+
+</td>
+<td align="center" width="25%">
+
+### 📦 **Single Install**
+
+<sub>`pip install flock-p2p`</sub>
+
+</td>
+<td align="center" width="25%">
+
+### 🐍 **Python 3.11+**
+
+<sub>Modern Python, no legacy baggage</sub>
+
+</td>
+</tr>
+</table>
+
+<br>
+
+## 📦 Installation
+
+<div align="left">
 
 ```bash
 pip install flock-p2p
 ```
 
+</div>
+
 ### Requirements
 
 | Dependency | Version | Purpose |
 |---|---|---|
-| Python | ≥ 3.11 | Runtime |
-| pydantic | ≥ 2.0.0 | Data validation and models |
-| structlog | ≥ 23.1.0 | Structured logging |
-| msgpack | ≥ 1.0.0 | Binary serialization |
+| **Python** | ≥ 3.11 | Runtime |
+| `pydantic` | ≥ 2.0.0 | Data validation and models |
+| `structlog` | ≥ 23.1.0 | Structured logging |
+| `msgpack` | ≥ 1.0.0 | Binary serialization |
+
+<br>
 
 ### Development Installation
 
+For contributing or running the test suite locally:
+
+**1. Clone the repository**
 ```bash
 git clone https://github.com/Ashish6298/Flock.git
+```
+
+**2. Enter the project directory**
+```bash
 cd Flock
+```
+
+**3. Install in editable mode with dev dependencies**
+```bash
 pip install -e .[dev]
 ```
 
-Development extras include: `pytest`, `pytest-asyncio`, `mypy`, `black`, `ruff`.
+<sub>Dev extras include: `pytest` · `pytest-asyncio` · `mypy` · `black` · `ruff`</sub>
+
+<br>
+
+## 🚀 Quick Start  &nbsp;•&nbsp;  **Three examples. Each one runnable in under a minute.**
+
+<table width="100%">
+<tr>
+<td align="center" width="33%">
+
+### **🧱 Start a Cluster**
+<sub>Raft consensus, leader election</sub>
+</td>
+<td align="center" width="33%">
+
+### **🏛️ Join the Control Plane**
+<sub>Fleet enrollment & governance</sub>
+</td>
+<td align="center" width="33%">
+
+### **📋 Submit a Workflow**
+<sub>DAG-based task execution</sub>
+</td>
+</tr>
+</table>
+
 
 ---
 
-## Quick Start
 
-### 1. Start a Single-Node Cluster
+### 1️⃣ Start a Single-Node Cluster
+
+<sub>Spin up Raft consensus, elect a leader, and commit your first log entry.</sub>
+
+<details open>
+<summary><b>Show code</b></summary>
+<br>
 
 ```python
 import asyncio
@@ -315,7 +693,17 @@ async def main() -> None:
 asyncio.run(main())
 ```
 
-### 2. Register a Cluster with the Control Plane
+</details>
+
+<br>
+
+### 2️⃣ Register a Cluster with the Control Plane
+
+<sub>Enroll a cluster into a fleet with labels, versioning, and active feature tracking.</sub>
+
+<details>
+<summary><b>Show code</b></summary>
+<br>
 
 ```python
 import asyncio
@@ -353,7 +741,17 @@ async def main() -> None:
 asyncio.run(main())
 ```
 
-### 3. Submit a Distributed Workflow
+</details>
+
+<br>
+
+### 3️⃣ Submit a Distributed Workflow
+
+<sub>Define a DAG with dependencies and submit it for checkpointed execution.</sub>
+
+<details>
+<summary><b>Show code</b></summary>
+<br>
 
 ```python
 import asyncio
@@ -392,40 +790,20 @@ async def main() -> None:
 asyncio.run(main())
 ```
 
----
+</details>
 
-## Architecture
+<br>
 
-Flock follows a **layered, event-driven architecture** built on strict separation of concerns:
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     APPLICATION LAYER                           │
-│   CLI · API Gateway · Dashboard · SDK                           │
-├─────────────────────────────────────────────────────────────────┤
-│                    ORCHESTRATION LAYER                           │
-│   Workflow · Scheduler · Placement · Orchestrator               │
-├─────────────────────────────────────────────────────────────────┤
-│                    CONSENSUS & REPLICATION                       │
-│   Raft Consensus · Election · Log · State Machine · Snapshot    │
-├───────────────────────┬─────────────────────────────────────────┤
-│    CLUSTER SERVICES   │        PLATFORM SERVICES                │
-│   Discovery           │   Security · Observability              │
-│   Heartbeat           │   Federation · Control Plane            │
-│   Membership          │   Policy · Marketplace                  │
-│   DataGrid            │   Recovery · Deployment                 │
-├───────────────────────┴─────────────────────────────────────────┤
-│                      MESSAGING LAYER                            │
-│   MessageBus · EventBus · Router · Handlers · Middleware        │
-├─────────────────────────────────────────────────────────────────┤
-│                      STORAGE LAYER                              │
-│   WAL · Storage Backend · Streaming · Query Engine              │
-├─────────────────────────────────────────────────────────────────┤
-│                     TRANSPORT LAYER                             │
-│   TCP Transport · Serialization (JSON / MessagePack)            │
-└─────────────────────────────────────────────────────────────────┘
-```
+## 🏗️ Architecture
 
+Flock is a distributed, event-driven platform built around a strong consistency core.
+The architecture connects application interfaces, coordination services, cluster nodes,
+and persistence layers through a unified event graph.
+
+<p align="center">
+  <img src="./docs/assets/flock-architecture.svg" width="1000" alt="Flock Architecture"/>
+</p>
 ### Design Principles
 
 - **Transport Independence** — the `MessageBus` decouples all subsystems from the underlying transport. Swap TCP for UDP, gRPC, or in-memory without touching business logic.
