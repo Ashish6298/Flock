@@ -6,11 +6,11 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/flock-p2p.svg?color=blue&label=flock-p2p)](https://pypi.org/project/flock-p2p/)
 [![Python](https://img.shields.io/pypi/pyversions/flock-p2p.svg)](https://pypi.org/project/flock-p2p/)
+[![Downloads](https://static.pepy.tech/badge/flock-p2p)](https://pepy.tech/project/flock-p2p)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![CI](https://github.com/Ashish6298/Flock/actions/workflows/ci.yml/badge.svg)](https://github.com/Ashish6298/Flock/actions)
 [![mypy](https://img.shields.io/badge/mypy-strict-blue)](https://mypy-lang.org/)
 [![Tests](https://img.shields.io/badge/tests-629%20passing-brightgreen)](#testing)
-
 **Flock** is a production-ready, fully typed, transport-independent distributed computing framework built in pure Python. It provides everything needed to run a multi-node cluster — from Raft consensus and leader election to AI-driven scheduling, enterprise security, policy-as-code governance, multi-cloud federation, and disaster recovery — all in a single cohesive package.
 
 [Installation](#installation) · [Quick Start](#quick-start) · [The Story Behind Flock](#the-story-behind-flock) · [Who Is Flock For?](#who-is-flock-for) · [Architecture](#architecture) · [API Reference](#api-reference) · [Contributing](#contributing)
