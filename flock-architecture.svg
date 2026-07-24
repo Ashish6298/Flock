@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 760" role="img" aria-labelledby="title desc">
+  <title id="title">Flock event-driven system architecture</title>
+  <desc id="desc">A connected architecture map for Flock showing applications, orchestration, consensus, cluster services, platform services, messaging, storage, and transport.</desc>
+  <defs>
+    <linearGradient id="canvas" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#080d17"/><stop offset="1" stop-color="#0c111b"/></linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#000" flood-opacity=".48"/></filter>
+    <filter id="glow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <pattern id="grid" width="38" height="38" patternUnits="userSpaceOnUse"><path d="M38 0H0V38" fill="none" stroke="#5f7890" stroke-opacity=".105"/></pattern>
+    <style>
+      .title { font: 800 17px 'Segoe UI', sans-serif; letter-spacing: 2.2px; fill: #f2f5fb; }
+      .node-title { font: 700 14px 'Segoe UI', sans-serif; fill: #f5f7ff; }
+      .node-sub { font: 400 10px 'Segoe UI', sans-serif; letter-spacing: .15px; fill: #92a7bd; }
+      .edge-label { font: 600 10px 'Segoe UI', sans-serif; fill: #a9bfd3; }
+      .node { fill: #0b1422; fill-opacity: .96; filter: url(#shadow); stroke-width: 1.5; }
+      .cyan { stroke: #00d9ff; } .pink { stroke: #ff0d8b; } .violet { stroke: #8e6cff; } .green { stroke: #48e4a4; } .amber { stroke: #ffad43; } .slate { stroke: #a8b8cd; }
+      .edge { fill: none; stroke-width: 1.35; stroke-dasharray: 7 8; animation: dash 2.4s linear infinite; }
+      .edge.cyan { stroke: #00cfff; } .edge.pink { stroke: #ff168e; } .edge.green { stroke: #49e4a4; } .edge.amber { stroke: #ffad43; } .edge.violet { stroke: #9875ff; } .edge.slate { stroke: #a8b8cd; }
+      .dot { fill: #00d9ff; animation: travel 2.9s ease-in-out infinite; filter: url(#glow); }
+      .dot.pink { fill: #ff0d8b; } .dot.green { fill: #48e4a4; } .dot.amber { fill: #ffad43; } .dot.violet { fill: #9b7bff; } .dot.slate { fill: #c9d7e8; }
+      .node-pulse { animation: breathe 3.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+      @keyframes dash { to { stroke-dashoffset: -30; } }
+      @keyframes travel { 0%, 100% { opacity: .25; r: 2.5; } 42% { opacity: 1; r: 4; } 66% { opacity: .3; r: 2.5; } }
+      @keyframes breathe { 0%, 100% { opacity: .9; } 50% { opacity: 1; transform: scale(1.018); } }
+      @media (prefers-reduced-motion: reduce) { .edge, .dot, .node-pulse { animation: none; } }
+    </style>
+  </defs>
+
+  <rect width="1600" height="760" rx="18" fill="url(#canvas)"/><rect width="1600" height="760" rx="18" fill="url(#grid)"/>
+  <path d="M32 43H1568" stroke="#60768d" stroke-opacity=".42"/><path d="M32 43H480" stroke="#00d9ff" stroke-opacity=".65"/>
+  <text x="38" y="27" class="title">FLOCK EVENT-DRIVEN SYSTEM ARCHITECTURE</text>
+
+  <!-- Flow lines are behind the nodes. -->
+  <g fill="none" stroke-linecap="round">
+    <path d="M197 124C255 124 273 164 322 164" class="edge pink"/><path d="M197 236C255 236 273 190 322 190" class="edge pink"/>
+    <path d="M478 177H566" class="edge cyan"/><path d="M717 177H778" class="edge cyan"/><path d="M928 177H1008" class="edge violet"/>
+    <path d="M1138 177C1190 177 1197 112 1240 112" class="edge violet"/><path d="M1138 204C1190 204 1197 244 1240 244" class="edge violet"/>
+    <path d="M853 218V290" class="edge amber"/><path d="M853 354V393" class="edge amber"/>
+    <path d="M778 323C705 323 681 295 610 295" class="edge green"/><path d="M928 323C1001 323 1025 295 1095 295" class="edge green"/>
+    <path d="M610 328C610 382 623 401 623 435" class="edge green"/><path d="M1095 328C1095 382 1082 401 1082 435" class="edge green"/>
+    <path d="M853 455V501" class="edge pink"/><path d="M778 531C710 531 683 550 628 550" class="edge cyan"/><path d="M928 531C1000 531 1029 550 1080 550" class="edge cyan"/>
+    <path d="M853 565V640" class="edge slate"/><path d="M928 667H940" class="edge slate"/><path d="M1090 667H1110" class="edge slate"/><path d="M1230 550C1270 550 1285 517 1320 517" class="edge green"/><path d="M1390 516C1450 516 1452 405 1486 405" class="edge green"/>
+  </g>
+  <g>
+    <text x="248" y="137" text-anchor="middle" class="edge-label">submits command</text><text x="248" y="226" text-anchor="middle" class="edge-label">sends request</text>
+    <text x="522" y="168" text-anchor="middle" class="edge-label">opens workflow</text><text x="748" y="168" text-anchor="middle" class="edge-label">schedules</text><text x="968" y="168" text-anchor="middle" class="edge-label">assigns</text>
+    <text x="1180" y="123" text-anchor="middle" class="edge-label">updates view</text><text x="1180" y="232" text-anchor="middle" class="edge-label">queries state</text>
+  </g>
+
+  <!-- Application entry points -->
+  <g>
+    <rect x="38" y="74" width="159" height="62" rx="8" class="node pink"/><text x="117" y="99" text-anchor="middle" class="node-title">CLI</text><text x="117" y="117" text-anchor="middle" class="node-sub">operator commands</text>
+    <rect x="38" y="186" width="159" height="62" rx="8" class="node pink"/><text x="117" y="211" text-anchor="middle" class="node-title">API Gateway</text><text x="117" y="229" text-anchor="middle" class="node-sub">external clients</text>
+    <rect x="322" y="136" width="156" height="82" rx="9" class="node cyan node-pulse"/><text x="400" y="166" text-anchor="middle" class="node-title">Application</text><text x="400" y="184" text-anchor="middle" class="node-title">Layer</text><text x="400" y="202" text-anchor="middle" class="node-sub">Dashboard + SDK</text>
+    <rect x="566" y="136" width="151" height="82" rx="9" class="node cyan"/><text x="641" y="166" text-anchor="middle" class="node-title">Workflow</text><text x="641" y="184" text-anchor="middle" class="node-title">Engine</text><text x="641" y="202" text-anchor="middle" class="node-sub">jobs + lifecycle</text>
+    <rect x="778" y="136" width="150" height="82" rx="9" class="node cyan"/><text x="853" y="166" text-anchor="middle" class="node-title">Scheduler</text><text x="853" y="184" text-anchor="middle" class="node-title">&amp; Placement</text><text x="853" y="202" text-anchor="middle" class="node-sub">capacity decisions</text>
+    <rect x="1008" y="136" width="130" height="82" rx="9" class="node violet node-pulse"/><text x="1073" y="166" text-anchor="middle" class="node-title">Orchestrator</text><text x="1073" y="184" text-anchor="middle" class="node-sub">coordinates work</text>
+    <rect x="1240" y="74" width="150" height="76" rx="9" class="node violet"/><text x="1315" y="104" text-anchor="middle" class="node-title">Dashboard</text><text x="1315" y="123" text-anchor="middle" class="node-sub">cluster view</text>
+    <rect x="1240" y="206" width="150" height="76" rx="9" class="node violet"/><text x="1315" y="236" text-anchor="middle" class="node-title">SDK</text><text x="1315" y="255" text-anchor="middle" class="node-sub">typed client access</text>
+  </g>
+
+  <!-- Consensus core -->
+  <g>
+    <rect x="778" y="290" width="150" height="64" rx="9" class="node amber node-pulse"/><text x="853" y="316" text-anchor="middle" class="node-title">Consensus Core</text><text x="853" y="335" text-anchor="middle" class="node-sub">Raft + election</text>
+    <rect x="778" y="393" width="150" height="62" rx="9" class="node amber"/><text x="853" y="418" text-anchor="middle" class="node-title">Replicated Log</text><text x="853" y="437" text-anchor="middle" class="node-sub">state machine + snapshot</text>
+    <text x="853" y="278" text-anchor="middle" class="edge-label">proposes term</text><text x="853" y="380" text-anchor="middle" class="edge-label">commits entries</text>
+  </g>
+
+  <!-- Cluster and platform service branches -->
+  <g>
+    <rect x="508" y="262" width="202" height="66" rx="9" class="node green"/><text x="609" y="288" text-anchor="middle" class="node-title">Cluster Services</text><text x="609" y="307" text-anchor="middle" class="node-sub">Discovery · Membership · Heartbeat</text>
+    <rect x="995" y="262" width="202" height="66" rx="9" class="node green"/><text x="1096" y="288" text-anchor="middle" class="node-title">Platform Services</text><text x="1096" y="307" text-anchor="middle" class="node-sub">Security · Policy · Recovery</text>
+    <rect x="521" y="435" width="202" height="66" rx="9" class="node green"/><text x="622" y="461" text-anchor="middle" class="node-title">DataGrid</text><text x="622" y="480" text-anchor="middle" class="node-sub">distributed data + health</text>
+    <rect x="982" y="435" width="202" height="66" rx="9" class="node green"/><text x="1083" y="461" text-anchor="middle" class="node-title">Observability</text><text x="1083" y="480" text-anchor="middle" class="node-sub">metrics + tracing + logs</text>
+    <text x="741" y="370" text-anchor="middle" class="edge-label">discovers nodes</text><text x="958" y="370" text-anchor="end" class="edge-label">enforces policy</text>
+  </g>
+
+  <!-- Messaging and persistence path -->
+  <g>
+    <rect x="778" y="501" width="150" height="64" rx="9" class="node pink node-pulse"/><text x="853" y="527" text-anchor="middle" class="node-title">Messaging Layer</text><text x="853" y="546" text-anchor="middle" class="node-sub">MessageBus + EventBus</text>
+    <rect x="478" y="516" width="150" height="68" rx="9" class="node cyan"/><text x="553" y="543" text-anchor="middle" class="node-title">Router</text><text x="553" y="562" text-anchor="middle" class="node-sub">routes events</text>
+    <rect x="1080" y="516" width="150" height="68" rx="9" class="node cyan"/><text x="1155" y="543" text-anchor="middle" class="node-title">Handlers</text><text x="1155" y="562" text-anchor="middle" class="node-sub">middleware + consumers</text>
+    <rect x="778" y="640" width="150" height="54" rx="9" class="node slate"/><text x="853" y="663" text-anchor="middle" class="node-title">Storage Layer</text><text x="853" y="680" text-anchor="middle" class="node-sub">WAL + query engine</text>
+    <rect x="1110" y="640" width="160" height="54" rx="9" class="node slate"/><text x="1190" y="663" text-anchor="middle" class="node-title">Streaming Store</text><text x="1190" y="680" text-anchor="middle" class="node-sub">replay + snapshots</text>
+    <rect x="1320" y="486" width="140" height="62" rx="9" class="node green"/><text x="1390" y="511" text-anchor="middle" class="node-title">Event Consumers</text><text x="1390" y="530" text-anchor="middle" class="node-sub">federation + recovery</text>
+    <rect x="1486" y="375" width="78" height="62" rx="9" class="node green"/><text x="1525" y="400" text-anchor="middle" class="node-title">SDK</text><text x="1525" y="419" text-anchor="middle" class="node-sub">events</text>
+    <text x="698" y="542" text-anchor="middle" class="edge-label">publishes</text><text x="1006" y="542" class="edge-label">consumes</text><text x="868" y="603" class="edge-label">persists</text><text x="1260" y="500" class="edge-label">dispatches events</text><text x="1283" y="614" class="edge-label">streams</text><text x="1433" y="463" class="edge-label">delivers</text>
+  </g>
+
+  <!-- Transport foundation -->
+  <g>
+    <rect x="940" y="640" width="150" height="54" rx="9" class="node slate"/><text x="1015" y="663" text-anchor="middle" class="node-title">Transport Layer</text><text x="1015" y="680" text-anchor="middle" class="node-sub">TCP + serialization</text>
+    <path d="M940 667H928" class="edge slate"/><text x="934" y="629" text-anchor="middle" class="edge-label">writes</text>
+  </g>
+
+  <!-- Animated particles travel along the main paths. -->
+  <g>
+    <circle r="3.5" class="dot pink"><animateMotion dur="3.2s" repeatCount="indefinite" path="M197 124C255 124 273 164 322 164"/></circle>
+    <circle r="3.5" class="dot"><animateMotion dur="2.5s" repeatCount="indefinite" path="M478 177H566"/></circle>
+    <circle r="3.5" class="dot amber"><animateMotion dur="2.7s" repeatCount="indefinite" path="M853 218V290"/></circle>
+    <circle r="3.5" class="dot green"><animateMotion dur="3.1s" repeatCount="indefinite" path="M853 455V501"/></circle>
+    <circle r="3.5" class="dot"><animateMotion dur="2.9s" repeatCount="indefinite" path="M778 531C710 531 683 550 628 550"/></circle>
+    <circle r="3.5" class="dot slate"><animateMotion dur="2.6s" repeatCount="indefinite" path="M853 565V640"/></circle>
+    <circle r="3.5" class="dot green"><animateMotion dur="3.4s" repeatCount="indefinite" path="M1390 516C1450 516 1452 405 1486 405"/></circle>
+  </g>
+
+  <g transform="translate(38 726)"><circle cx="4" cy="0" r="3" fill="#00d9ff"/><text x="14" y="4" class="node-sub">live event flow</text><circle cx="112" cy="0" r="3" fill="#ff0d8b"/><text x="122" y="4" class="node-sub">control path</text><circle cx="219" cy="0" r="3" fill="#48e4a4"/><text x="229" y="4" class="node-sub">service path</text><text x="1525" y="4" text-anchor="end" class="node-sub">Flock / architecture overview</text></g>
++</svg>
