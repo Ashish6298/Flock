@@ -802,277 +802,881 @@ The architecture connects application interfaces, coordination services, cluster
 and persistence layers through a unified event graph.
 
 <p align="center">
-  <img src="./docs/assets/flock-architecture.svg" width="1000" alt="Flock Architecture"/>
+  <img src="./flock-architecture.svg" width="1000" alt="Flock Architecture"/>
 </p>
-### Design Principles
 
-- **Transport Independence** — the `MessageBus` decouples all subsystems from the underlying transport. Swap TCP for UDP, gRPC, or in-memory without touching business logic.
-- **Event-Driven** — every significant state change publishes a typed event on the `EventBus`. Subsystems subscribe and react; they never call each other directly.
-- **Immutable Models** — all domain models use `@dataclass(frozen=True)`. State is never mutated in place; new objects are produced.
-- **Thread Safety** — all shared state is protected by `threading.RLock()`. Services are safe for concurrent use.
-- **SOLID + Dependency Inversion** — every service accepts its dependencies via constructor injection. Nothing creates its own infrastructure.
+<br>
 
----
+# ✨ Design Principles
 
-## Subsystems
+> *A great architecture isn't defined by frameworks—it's defined by the principles that guide every design decision.*
 
-Flock is organized into 42 focused subsystems under `flock.*`:
-
-| Subsystem | Module | Description |
-|---|---|---|
-| **Consensus** | `flock.consensus` | Full Raft implementation: election, log replication, state machine |
-| **Cluster** | `flock.cluster` | Node membership, registry, health status |
-| **Heartbeat** | `flock.heartbeat` | Peer health probing and failure detection |
-| **Discovery** | `flock.discovery` | Service registration and peer lookup |
-| **Messaging** | `flock.messaging` | MessageBus, typed routing, middleware, handlers |
-| **Events** | `flock.events` | EventBus — pub/sub event distribution |
-| **Transport** | `flock.transport` | TCP transport; pluggable interface |
-| **Protocol** | `flock.protocol` | Typed message definitions (MessageType enum) |
-| **DataGrid** | `flock.datagrid` | Distributed KV store with partitioning |
-| **Storage** | `flock.storage` | WAL, storage backend, recovery |
-| **Snapshot** | `flock.snapshot` | Consistent cluster snapshots, compaction, replication |
-| **Streaming** | `flock.streaming` | Event streaming, publisher/subscriber, backpressure |
-| **Query** | `flock.query` | Distributed query engine: parser, planner, optimizer |
-| **Runtime** | `flock.runtime` | Task execution context and executor |
-| **Scheduler** | `flock.scheduler` | Priority queue-based task scheduler |
-| **Scheduling** | `flock.scheduling` | Cron, trigger, and deadline-based scheduling |
-| **Orchestrator** | `flock.orchestrator` | AI-powered workload orchestration and autoscaling |
-| **Placement** | `flock.placement` | Constraint-aware task placement engine |
-| **Resources** | `flock.resources` | CPU/memory allocation, load balancing, capacity planning |
-| **Workflow** | `flock.workflow` | DAG workflow engine with checkpointing |
-| **State Machine** | `flock.statemachine` | Generic replicated state machine |
-| **Mesh** | `flock.mesh` | Service mesh: routing, circuit breaking, load balancing |
-| **Functions** | `flock.functions` | Serverless-style function registry and execution |
-| **Observability** | `flock.observability` | Metrics, tracing, profiling, alerts, log aggregation |
-| **Dashboard** | `flock.dashboard` | Real-time monitoring dashboard with widgets |
-| **Security** | `flock.security` | Zero-Trust, RBAC, vault, crypto, intrusion detection |
-| **AI** | `flock.ai` | Prediction, anomaly detection, learning engine |
-| **Federation** | `flock.federation` | Multi-cloud/multi-region cluster federation |
-| **Control Plane** | `flock.controlplane` | Fleet management and cluster governance |
-| **Policy** | `flock.policy` | Policy-as-Code: compiler, rule engine, compliance |
-| **Marketplace** | `flock.marketplace` | Plugin registry, dependency resolution, sandboxing |
-| **Recovery** | `flock.recovery` | Disaster recovery, backup, PITR restore |
-| **Deployment** | `flock.deployment` | Kubernetes/Docker manifest generation, rollout |
-| **Results** | `flock.results` | Result collection, serialization, registry |
-| **Serialization** | `flock.serialization` | JSON and MessagePack serializers |
-| **Config** | `flock.config` | Cluster configuration management |
-| **API** | `flock.api` | HTTP API gateway and REST router |
-| **CLI** | `flock.cli` | Command-line interface |
-| **Plugins** | `flock.plugins` | Plugin loader, sandbox, service |
-| **Release** | `flock.release` | Production readiness checks and lifecycle |
-| **Interfaces** | `flock.interfaces` | Shared abstract base classes and protocols |
+These core principles ensure the system remains **modular**, **scalable**, **maintainable**, and **easy to evolve** as new requirements emerge.
 
 ---
 
-## API Reference
+# Transport Independence
 
-### Core Types
+> **Build once. Change the transport anytime.**
+
+Business logic communicates exclusively through the **`MessageBus`**, never with TCP, UDP, gRPC, WebSockets, or any other transport directly.
+
+The transport layer becomes an implementation detail—not a dependency.
+
+### ✅ Why it matters
+
+* Switch communication protocols without touching business logic
+* Use an in-memory transport for lightning-fast tests
+* Keep networking concerns isolated from the domain
+* Add new transports with minimal effort
+
+> 💡 **Guiding Principle**
+> **Infrastructure should be replaceable without affecting domain logic.**
+
+---
+
+# Event-Driven Architecture
+
+> **Components react to events—not to each other.**
+
+Every meaningful state transition publishes a **strongly typed event** through the **`EventBus`**.
+
+Any number of subscribers can respond independently, allowing the system to grow without creating tight coupling.
+
+### 🔄 How it works
+
+```text
+Service A
+    │
+    ▼
+Publishes Event
+    │
+    ▼
+┌──────────────┬──────────────┬──────────────┐
+│ Subscriber A │ Subscriber B │ Subscriber C │
+└──────────────┴──────────────┴──────────────┘
+```
+
+### ✅ Why it matters
+
+* Loose coupling between components
+* Add new features without modifying existing services
+* Natural support for asynchronous workflows
+* Independent testing of event handlers
+
+> 💡 **Guiding Principle**
+> **Publish events instead of invoking services directly.**
+
+---
+
+# Immutable Domain Models
+
+> **State is created—not modified.**
+
+Every domain object is implemented using:
 
 ```python
-from flock import NodeInfo, TaskSpec, TaskStatus
+@dataclass(frozen=True)
+```
 
-# Immutable node descriptor
+Instead of changing existing objects, each state transition creates a **new immutable instance** representing the updated state.
+
+### 🔄 Example
+
+```text
+Order(status="Pending")
+          │
+          ▼
+Order(status="Shipped")
+```
+
+The original object remains unchanged.
+
+### ✅ Why it matters
+
+* Predictable behavior
+* Safer concurrent execution
+* Easier debugging
+* Fewer unintended side effects
+
+> 💡 **Guiding Principle**
+> **Domain objects represent values—not mutable state.**
+
+---
+
+# Thread Safety
+
+> **Concurrency is a design requirement—not an afterthought.**
+
+Whenever shared mutable state exists, access is synchronized using:
+
+```python
+threading.RLock()
+```
+
+This guarantees correctness even under concurrent workloads.
+
+### ✅ Why it matters
+
+* Prevent race conditions
+* Preserve consistent application state
+* Safe multi-threaded execution
+* Reliable behavior under load
+
+> 💡 **Guiding Principle**
+> **Shared mutable state must always be synchronized.**
+
+---
+
+# SOLID & Dependency Inversion
+
+> **Depend on abstractions—not implementations.**
+
+Services receive all dependencies through **constructor injection**, rather than creating infrastructure internally.
+
+This clean separation keeps business logic independent from implementation details.
+
+### 🔄 Dependency Flow
+
+```text
+Business Service
+       │
+       ▼
+Interface (Abstraction)
+       │
+       ▼
+Concrete Implementation
+```
+
+### ✅ Why it matters
+
+* Highly testable services
+* Easily replace implementations
+* Clear separation of concerns
+* Long-term maintainability
+
+> 💡 **Guiding Principle**
+> **Services should never construct their own infrastructure.**
+
+---
+
+# Principles at a Glance
+
+| Principle                            | Purpose                                                                |
+| ------------------------------------ | ---------------------------------------------------------------------- |
+| **Transport Independence**        | Decouple communication from transport protocols.                       |
+| **Event-Driven Architecture**      | Enable collaboration through published events instead of direct calls. |
+| **Immutable Domain Models**       | Create predictable, side-effect-free state transitions.                |
+| **Thread Safety**                | Ensure correctness under concurrent execution.                         |
+| **SOLID & Dependency Inversion** | Keep services modular, testable, and infrastructure-agnostic.          |
+
+---
+
+# How They Work Together
+
+```text
+                +--------------------+
+                |   Business Logic   |
+                +---------+----------+
+                          │
+          depends only on abstractions
+                          │
+                          ▼
+                 +----------------+
+                 |  Message Bus   |
+                 +-------+--------+
+                         │
+        publishes events │
+                         ▼
+                 +----------------+
+                 |   Event Bus    |
+                 +-------+--------+
+                         │
+          ┌──────────────┼──────────────┐
+          ▼              ▼              ▼
+     Service A      Service B      Service C
+          │              │              │
+          └──────────────┼──────────────┘
+                         ▼
+                Immutable Domain Models
+                         │
+                Thread-safe execution
+```
+
+---
+
+# The Bigger Picture
+
+Each principle reinforces the others:
+
+* **Transport Independence** keeps infrastructure replaceable.
+* **Events** keep services loosely coupled.
+* **Immutability** makes state predictable.
+* **Thread Safety** ensures correctness under concurrency.
+* **Dependency Inversion** keeps the architecture clean and testable.
+
+Together, they create a system that is:
+
+> **Modular • Scalable • Resilient • Testable • Extensible • Future-Proof**
+>
+> 💙 **Good architecture isn't about making today's code work—it's about making tomorrow's changes effortless.**
+
+<br>
+
+# 🧩 Flock Subsystems
+
+<br>
+
+> **Flock is composed of 42 focused subsystems.**
+>
+> Each subsystem has a single responsibility and can evolve independently while collaborating through shared interfaces and the event-driven architecture.
+
+<br>
+
+# 🏗️ Core Distributed Systems
+<br>
+The foundation of the cluster.
+
+| Subsystem         | Module            | Responsibility                                                             |
+| ----------------- | ----------------- | -------------------------------------------------------------------------- |
+| 🗳️ **Consensus** | `flock.consensus` | Raft consensus, leader election, log replication, replicated state machine |
+| 🏛️ **Cluster**   | `flock.cluster`   | Node membership, registry, health management                               |
+| ❤️ **Heartbeat**  | `flock.heartbeat` | Failure detection and peer liveness monitoring                             |
+| 🔍 **Discovery**  | `flock.discovery` | Service registration and peer discovery                                    |
+| 🌐 **Transport**  | `flock.transport` | Pluggable network transport (TCP and future transports)                    |
+| 📦 **Protocol**   | `flock.protocol`  | Typed protocol messages and `MessageType` definitions                      |
+
+<br>
+
+# 💬 Communication Layer
+<br>
+Everything related to messaging and event distribution.
+
+| Subsystem        | Module            | Responsibility                                |
+| ---------------- | ----------------- | --------------------------------------------- |
+| 📨 **Messaging** | `flock.messaging` | MessageBus, routing, middleware, handlers     |
+| ⚡ **Events**     | `flock.events`    | EventBus for publish/subscribe communication  |
+| 🌊 **Streaming** | `flock.streaming` | Distributed event streaming with backpressure |
+
+<br>
+
+# 💾 Data & Storage
+<br>
+Persistent and distributed data management.
+
+| Subsystem            | Module                | Responsibility                                  |
+| -------------------- | --------------------- | ----------------------------------------------- |
+| 🗄️ **DataGrid**     | `flock.datagrid`      | Distributed key-value storage with partitioning |
+| 💽 **Storage**       | `flock.storage`       | WAL, persistence, recovery                      |
+| 📸 **Snapshot**      | `flock.snapshot`      | Snapshotting, compaction, replication           |
+| 🔄 **State Machine** | `flock.statemachine`  | Generic replicated state machine                |
+| 📑 **Serialization** | `flock.serialization` | JSON and MessagePack serialization              |
+
+<br>
+
+# ⚙️ Runtime & Scheduling
+<br>
+Task execution and workload management.
+
+| Subsystem         | Module             | Responsibility                             |
+| ----------------- | ------------------ | ------------------------------------------ |
+| 🚀 **Runtime**    | `flock.runtime`    | Execution context and runtime environment  |
+| ⏱️ **Scheduler**  | `flock.scheduler`  | Priority-based task scheduling             |
+| 📅 **Scheduling** | `flock.scheduling` | Cron, triggers, deadlines, recurring jobs  |
+| 📋 **Results**    | `flock.results`    | Result collection, serialization, registry |
+
+<br>
+
+# ☁️ Distributed Compute
+<br>
+Cluster-wide execution and orchestration.
+
+| Subsystem           | Module               | Responsibility                                     |
+| ------------------- | -------------------- | -------------------------------------------------- |
+| 🤖 **Orchestrator** | `flock.orchestrator` | AI-assisted workload orchestration and autoscaling |
+| 📍 **Placement**    | `flock.placement`    | Constraint-aware workload placement                |
+| 🧠 **Resources**    | `flock.resources`    | CPU, memory, balancing, capacity planning          |
+| 🔀 **Workflow**     | `flock.workflow`     | DAG workflow engine with checkpointing             |
+| ⚡ **Functions**     | `flock.functions`    | Serverless function execution                      |
+
+<br>
+
+# 🌐 Networking & Services
+<br>
+Application networking capabilities.
+
+| Subsystem    | Module        | Responsibility                                          |
+| ------------ | ------------- | ------------------------------------------------------- |
+| 🕸️ **Mesh** | `flock.mesh`  | Service mesh, routing, circuit breaking, load balancing |
+| 🔍 **Query** | `flock.query` | Distributed query parser, planner, optimizer            |
+
+<br>
+
+# 📊 Operations & Monitoring
+<br>
+Visibility into the running cluster.
+
+| Subsystem            | Module                | Responsibility                               |
+| -------------------- | --------------------- | -------------------------------------------- |
+| 📈 **Observability** | `flock.observability` | Metrics, tracing, profiling, alerts, logging |
+| 📺 **Dashboard**     | `flock.dashboard`     | Real-time operational dashboard              |
+
+<br>
+
+# 🔐 Security & Governance
+<br>
+Securing and governing the platform.
+
+| Subsystem             | Module               | Responsibility                                 |
+| --------------------- | -------------------- | ---------------------------------------------- |
+| 🛡️ **Security**      | `flock.security`     | Zero-Trust security, RBAC, vault, cryptography |
+| 📜 **Policy**         | `flock.policy`       | Policy-as-Code, compliance, rule engine        |
+| 🎛️ **Control Plane** | `flock.controlplane` | Fleet management and cluster governance        |
+
+<br>
+
+# 🤖 Intelligence
+<br>
+Machine learning and predictive capabilities.
+
+| Subsystem | Module     | Responsibility                                   |
+| --------- | ---------- | ------------------------------------------------ |
+| 🧠 **AI** | `flock.ai` | Prediction, anomaly detection, adaptive learning |
+
+<br>
+
+# 🌍 Enterprise & Cloud
+<br>
+Large-scale deployment capabilities.
+
+| Subsystem         | Module             | Responsibility                                   |
+| ----------------- | ------------------ | ------------------------------------------------ |
+| 🌐 **Federation** | `flock.federation` | Multi-region and multi-cloud federation          |
+| 🚑 **Recovery**   | `flock.recovery`   | Disaster recovery, backup, point-in-time restore |
+| 🚀 **Deployment** | `flock.deployment` | Kubernetes and Docker deployment automation      |
+| 📦 **Release**    | `flock.release`    | Release lifecycle and production readiness       |
+
+<br>
+
+# 🔌 Extensibility
+<br>
+Customize and extend Flock.
+
+| Subsystem          | Module              | Responsibility                                      |
+| ------------------ | ------------------- | --------------------------------------------------- |
+| 🛒 **Marketplace** | `flock.marketplace` | Plugin registry, dependency resolution, sandboxing  |
+| 🧩 **Plugins**     | `flock.plugins`     | Plugin loading, lifecycle, isolation                |
+| 🔗 **Interfaces**  | `flock.interfaces`  | Shared interfaces, abstract base classes, protocols |
+
+<br>
+
+# 🛠️ Developer Experience
+<br>
+Developer-facing tools.
+
+| Subsystem     | Module         | Responsibility            |
+| ------------- | -------------- | ------------------------- |
+| ⚙️ **Config** | `flock.config` | Configuration management  |
+| 🌐 **API**    | `flock.api`    | HTTP gateway and REST API |
+| 💻 **CLI**    | `flock.cli`    | Command-line interface    |
+
+<br>
+
+# 📦 Architecture Map
+<br>
+
+```text
+                              FLOCK
+                                │
+ ┌─────────────────────────────────────────────────────────────┐
+ │                  Core Distributed Systems                   │
+ └─────────────────────────────────────────────────────────────┘
+            │
+            ├── 💬 Communication
+            ├── 💾 Data & Storage
+            ├── ⚙️ Runtime & Scheduling
+            ├── ☁️ Distributed Compute
+            ├── 🌐 Networking
+            ├── 📊 Observability
+            ├── 🔐 Security & Governance
+            ├── 🤖 AI
+            ├── 🌍 Enterprise
+            ├── 🔌 Extensibility
+            └── 🛠️ Developer Experience
+```
+
+<br>
+
+## 📈 At a Glance
+
+<br>
+
+| Category                     | Modules |
+| ---------------------------- | :-----: |
+| 🏗️ Core Distributed Systems |  **6**  |
+| 💬 Communication             |  **3**  |
+| 💾 Data & Storage            |  **5**  |
+| ⚙️ Runtime & Scheduling      |  **4**  |
+| ☁️ Distributed Compute       |  **5**  |
+| 🌐 Networking                |  **2**  |
+| 📊 Operations                |  **2**  |
+| 🔐 Security & Governance     |  **3**  |
+| 🤖 Intelligence              |  **1**  |
+| 🌍 Enterprise                |  **4**  |
+| 🔌 Extensibility             |  **3**  |
+| 🛠️ Developer Experience     |  **3**  |
+
+<br>
+
+> **42 focused subsystems working together to provide a modular, scalable, distributed application platform.**
+
+
+<br>
+
+# 📚 API Reference
+
+<br>
+
+> The Flock API is **asynchronous**, **strongly typed**, and **modular**. Expand any section below to explore its API, methods, and examples.
+
+<br>
+
+
+<details open>
+<summary><strong>Core Types</strong> — Immutable domain models that represent nodes, tasks, and shared entities used throughout the Flock ecosystem.</summary>
+
+### NodeInfo
+
+```python
+from flock import NodeInfo
+
 node = NodeInfo(
     node_id="node-1",
     host="10.0.0.1",
     port=9000,
     metadata={"zone": "us-east-1a"},
 )
-
-# Task specification (auto-generates a UUID task_id)
-task = TaskSpec.create("process_batch", dataset="sales_q4", limit=1000)
-print(task.task_id)   # e.g. "a3f2c1d0-..."
-print(task.name)      # "process_batch"
-
-# Task lifecycle states
-class TaskStatus(str, Enum):
-    PENDING    = "PENDING"
-    RUNNING    = "RUNNING"
-    COMPLETED  = "COMPLETED"
-    FAILED     = "FAILED"
-    CANCELLED  = "CANCELLED"
 ```
 
-### ConsensusService
+### TaskSpec
+
+```python
+from flock import TaskSpec
+
+task = TaskSpec.create(
+    "process_batch",
+    dataset="sales_q4",
+    limit=1000,
+)
+```
+
+### TaskStatus
+
+```python
+class TaskStatus(str, Enum):
+    PENDING = "PENDING"
+    RUNNING = "RUNNING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+    CANCELLED = "CANCELLED"
+```
+
+</details>
+
+<br>
+
+<details>
+<summary><strong>ConsensusService</strong> — Implements the Raft consensus algorithm for leader election, replicated logs, and distributed state consistency.</summary>
+
+### Create a service
 
 ```python
 from flock.consensus import ConsensusService
 
-service = ConsensusService(
-    node_id="node-1",
-    membership=registry,         # MembershipRegistry
-    message_bus=message_bus,     # MessageBus
-    event_bus=event_bus,         # EventBus
-    heartbeat_interval=0.15,     # seconds between leader heartbeats
-    election_timeout_min=0.30,   # minimum election timeout
-    election_timeout_max=0.60,   # maximum election timeout
-)
-
-await service.start()
-await service.stop()
-
-# Check role
-service.is_leader()              # bool
-service.current_term             # int
-service.leader_id                # Optional[str]
-
-# Submit a command (leader only)
-entry = await service.submit_command(b"payload")
-
-# Events published on EventBus:
-# "consensus.leader.elected"    → {"leader_id": str, "term": int}
-# "consensus.term.changed"      → {"old_term": int, "new_term": int}
-# "consensus.log.committed"     → {"index": int, "entry_id": str, "term": int}
-# "consensus.replication.failed"→ {"peer_id": str, "error": str}
+service = ConsensusService(...)
 ```
 
-### SecurityService
+### Start
+
+```python
+await service.start()
+await service.stop()
+```
+
+### Cluster State
+
+```python
+service.is_leader()
+service.current_term
+service.leader_id
+```
+
+### Submit Command
+
+```python
+entry = await service.submit_command(
+    b"payload"
+)
+```
+
+### Published Events
+
+| Event                          | Description          |
+| ------------------------------ | -------------------- |
+| `consensus.leader.elected`     | Leader elected       |
+| `consensus.term.changed`       | Current term changed |
+| `consensus.log.committed`      | Log committed        |
+| `consensus.replication.failed` | Replication failure  |
+
+</details>
+
+<br>
+
+<details>
+<summary><strong>SecurityService</strong> — Provides authentication, authorization, cryptographic operations, identity management, and secure secret storage.</summary>
+
+### Initialize
 
 ```python
 from flock.security.service import SecurityService
-from flock.security.models import NodeIdentity, SecurityPolicy
 
-identity = NodeIdentity(node_id="node-1", public_key=b"...")
-service = SecurityService(
-    node_id="node-1",
-    secret_key=b"32-byte-secret-key-here!!!!!!!!",
-    local_identity=identity,
-    message_bus=message_bus,
-    event_bus=event_bus,
-)
-await service.start()
-
-# Authenticate a peer
-result = service.authentication_engine.authenticate(token, peer_id)
-
-# Authorize an action
-allowed = service.authorization_engine.authorize(identity, "write", "resource-x")
-
-# Store and retrieve secrets
-service.secrets_manager.store("db_password", b"supersecret")
-secret = service.secrets_manager.retrieve("db_password")
+service = SecurityService(...)
 ```
 
-### WorkflowService
+### Authenticate
+
+```python
+service.authentication_engine.authenticate(
+    token,
+    peer_id,
+)
+```
+
+### Authorize
+
+```python
+service.authorization_engine.authorize(
+    identity,
+    "write",
+    "resource",
+)
+```
+
+### Secrets
+
+```python
+service.secrets_manager.store(
+    "db_password",
+    b"secret",
+)
+
+secret = service.secrets_manager.retrieve(
+    "db_password",
+)
+```
+
+</details>
+
+<br>
+
+<details>
+<summary><strong>WorkflowService</strong> — Executes distributed DAG workflows with dependency management, checkpointing, and fault recovery.</summary>
+
+### Create Service
 
 ```python
 from flock.workflow.service import WorkflowService
-from flock.workflow.models import WorkflowDefinition, WorkflowStep
 
-service = WorkflowService(
-    node_id="node-1",
-    storage_backend=storage,
-    message_bus=message_bus,
-    event_bus=event_bus,
-)
-await service.start()
+service = WorkflowService(...)
+```
 
-workflow = WorkflowDefinition(
-    workflow_id="pipeline-001",
-    name="ETL Pipeline",
-    steps=[
-        WorkflowStep(step_id="extract",   name="Extract",   dependencies=[]),
-        WorkflowStep(step_id="transform", name="Transform", dependencies=["extract"]),
-        WorkflowStep(step_id="load",      name="Load",      dependencies=["transform"]),
-    ],
-)
+### Submit Workflow
+
+```python
 await service.submit(workflow)
 ```
 
-### EventBus
+</details>
+
+<br>
+
+<details>
+<summary><strong>EventBus</strong> — Enables loosely coupled publish/subscribe communication between independent services and subsystems.</summary>
+
+### Subscribe
 
 ```python
 from flock.events.bus import EventBus
 
 bus = EventBus()
 
-# Subscribe to events
-def on_leader(payload: dict) -> None:
-    print(f"New leader: {payload['leader_id']}")
-
-bus.subscribe("consensus.leader.elected", on_leader)
-
-# Publish events
-bus.publish("consensus.leader.elected", {"leader_id": "node-1", "term": 3})
+bus.subscribe(
+    "consensus.leader.elected",
+    callback,
+)
 ```
 
-### MessageBus
+### Publish
+
+```python
+bus.publish(
+    "consensus.leader.elected",
+    payload,
+)
+```
+
+</details>
+
+<br>
+
+<details>
+<summary><strong>MessageBus</strong> — Provides transport-independent, strongly typed messaging with routing, middleware, and asynchronous delivery.</summary>
+
+### Register Handler
 
 ```python
 from flock.messaging.bus import MessageBus
 from flock.protocol.packet import MessageType
 
-bus = MessageBus(transport=transport, serializer=serializer)
-
-# Register a typed handler
 @bus.handler(MessageType.VOTE_REQUEST)
 async def handle_vote(message):
     ...
-
-await bus.send(peer_id="node-2", message_type=MessageType.HEARTBEAT, payload=b"...")
 ```
 
----
-
-## Configuration
-
-Flock services are configured via constructor arguments — there are no global config files or singleton objects. Every service accepts its dependencies through dependency injection.
-
-### Typical Wiring Pattern
+### Send Message
 
 ```python
-# 1. Create infrastructure
-event_bus   = EventBus()
-message_bus = MessageBus(transport, serializer)
+await bus.send(
+    peer_id="node-2",
+    message_type=MessageType.HEARTBEAT,
+    payload=b"...",
+)
+```
 
-# 2. Create subsystem services, injecting infrastructure
-membership  = MembershipRegistry()
-consensus   = ConsensusService("node-1", membership, message_bus, event_bus)
-security    = SecurityService("node-1", secret_key, identity, message_bus, event_bus)
-workflow    = WorkflowService("node-1", storage, message_bus, event_bus)
+</details>
 
-# 3. Start all services
+<br>
+
+## API Design Principles
+
+<br>
+
+Every public API in Flock follows the same architectural philosophy:
+
+* **Immutable Models** — Domain objects are value types that never mutate.
+* **Async First** — Network and I/O operations use `async` / `await`.
+* **Event Driven** — Components collaborate through published events.
+* **Strongly Typed** — APIs expose explicit types, enums, and contracts.
+* **Transport Independent** — Business logic is isolated from networking protocols.
+* **Dependency Injection** — Infrastructure is supplied externally for flexibility and testability.
+
+<br>
+
+> **The API is intentionally consistent across every subsystem, making it easy to learn, extend, and scale distributed applications with Flock.**
+
+<br>
+
+# ⚙️ Configuration
+
+<br>
+
+> Flock follows an **explicit configuration model**. Services are configured entirely through **constructor arguments** and **dependency injection**—there are **no global configuration files, hidden state, or singleton objects**.
+
+This approach keeps every subsystem **modular**, **testable**, and **easy to replace** while making dependencies explicit.
+
+<br>
+
+## ✨ Configuration Philosophy
+
+* 🧩 **Dependency Injection** — Services receive their dependencies through constructors.
+* 🚫 **No Global State** — No global configuration objects or singletons.
+* 🔒 **Explicit Dependencies** — Every required component is visible in the constructor.
+* 🧪 **Test Friendly** — Infrastructure can easily be replaced with mocks or in-memory implementations.
+* 🔄 **Composable** — Mix and match implementations without changing business logic.
+
+<br>
+
+<details open>
+<summary><strong>🏗️ Typical Service Wiring</strong> — Initialize infrastructure, construct services, start them, and gracefully shut them down.</summary>
+
+### Create Infrastructure
+
+```python
+event_bus = EventBus()
+message_bus = MessageBus(
+    transport,
+    serializer,
+)
+```
+
+### Create Services
+
+```python
+membership = MembershipRegistry()
+
+consensus = ConsensusService(
+    "node-1",
+    membership,
+    message_bus,
+    event_bus,
+)
+
+security = SecurityService(
+    "node-1",
+    secret_key,
+    identity,
+    message_bus,
+    event_bus,
+)
+
+workflow = WorkflowService(
+    "node-1",
+    storage,
+    message_bus,
+    event_bus,
+)
+```
+
+### Start Services
+
+```python
 await consensus.start()
 await security.start()
 await workflow.start()
+```
 
-# 4. Run your application...
+### Application Runs
 
-# 5. Graceful shutdown
+```python
+# Your application logic...
+```
+
+### Graceful Shutdown
+
+```python
 await workflow.stop()
 await security.stop()
 await consensus.stop()
 ```
 
-### Key Configuration Parameters
+</details>
 
-| Service | Parameter | Default | Description |
-|---|---|---|---|
-| `ConsensusService` | `heartbeat_interval` | `0.15s` | Leader heartbeat frequency |
-| `ConsensusService` | `election_timeout_min` | `0.30s` | Min election timeout |
-| `ConsensusService` | `election_timeout_max` | `0.60s` | Max election timeout |
-| `SecurityService` | `secret_key` | required | 32-byte AES encryption key |
-| `FederationService` | `region` | required | Cluster geographic region |
+<br>
 
----
+<details>
+<summary><strong>⚙️ Configuration Parameters</strong> — Common constructor options available across core Flock services.</summary>
 
-## Examples
+| Service             | Parameter              |    Default   | Description                                                         |
+| ------------------- | ---------------------- | :----------: | ------------------------------------------------------------------- |
+| `ConsensusService`  | `heartbeat_interval`   |    `0.15s`   | Frequency of leader heartbeats sent to followers.                   |
+| `ConsensusService`  | `election_timeout_min` |    `0.30s`   | Minimum randomized election timeout before starting a new election. |
+| `ConsensusService`  | `election_timeout_max` |    `0.60s`   | Maximum randomized election timeout.                                |
+| `SecurityService`   | `secret_key`           | **Required** | 32-byte encryption key used for cryptographic operations.           |
+| `FederationService` | `region`               | **Required** | Geographic region identifier for multi-region deployments.          |
 
-### Run the Getting Started Example
+</details>
+
+<br>
+
+<details>
+<summary><strong>💡 Best Practices</strong> — Recommended patterns for configuring production applications.</summary>
+
+### Recommended Guidelines
+
+* ✅ Create shared infrastructure (`EventBus`, `MessageBus`) once and reuse it.
+* ✅ Inject dependencies instead of creating them inside services.
+* ✅ Start services in dependency order.
+* ✅ Shut down services gracefully in reverse order.
+* ✅ Keep configuration close to application startup.
+* ✅ Use immutable configuration values whenever possible.
+
+</details>
+
+<br>
+
+## 📌 Design Principles
+
+<br>
+
+Every Flock application follows the same startup lifecycle:
+
+```text
+Create Infrastructure
+        │
+        ▼
+Construct Services
+        │
+        ▼
+Inject Dependencies
+        │
+        ▼
+Start Services
+        │
+        ▼
+Application Running
+        │
+        ▼
+Graceful Shutdown
+```
+<br>
+
+> **By making dependencies explicit rather than hidden, Flock applications remain predictable, maintainable, and straightforward to test at any scale.**
+
+<br>
+
+# 🚀 Examples
+
+<br>
+
+> Learn Flock by example. These practical snippets demonstrate common workflows—from creating your first cluster to federation, policy enforcement, and disaster recovery.
+
+Whether you're just getting started or exploring advanced capabilities, the examples below provide a solid foundation for building distributed applications with Flock.
+
+<br>
+
+## 📚 Available Examples
+
+| Example                      | Description                                                         |
+| ---------------------------- | ------------------------------------------------------------------- |
+| 🚀 **Getting Started**       | Create your first Flock cluster and verify your installation.       |
+| 🌍 **Multi-Node Federation** | Connect multiple clusters across regions into a unified federation. |
+| 📜 **Policy-as-Code**        | Define and enforce runtime policies using the policy engine.        |
+| 💾 **Disaster Recovery**     | Create snapshots and restore cluster state after failures.          |
+
+<br>
+
+<details open>
+<summary><strong>🚀 Getting Started</strong> — Build and run your first Flock application in just a few commands.</summary>
+
+### Clone the repository
 
 ```bash
 git clone https://github.com/Ashish6298/Flock.git
 cd Flock
 pip install -e .
+```
+
+### Run the example
+
+```bash
 python examples/getting_started.py
 ```
 
-Expected output:
-```
+### Expected Output
+
+```text
 Successfully initialized Flock Cluster: US East compute under organization registries.
 ```
 
-### Multi-Node Federation
+> 💡 **Tip:** This example verifies that your installation is working correctly and demonstrates the basic application startup lifecycle.
+
+</details>
+
+
+<br>
+
+<details>
+<summary><strong>🌍 Multi-Node Federation</strong> — Connect multiple clusters into a single federated deployment spanning regions or cloud providers.</summary>
 
 ```python
 from flock.federation.service import FederationService
@@ -1083,25 +1687,37 @@ federation = FederationService(
     message_bus=message_bus,
     event_bus=event_bus,
 )
+
 await federation.start()
 
-# Register a remote cluster
 remote = FederatedCluster(
     cluster_id="cluster-west",
     region="us-west-2",
     endpoint="https://west.internal:9443",
     trust_level="verified",
 )
+
 federation.registry.register(remote)
 ```
 
-### Policy-as-Code
+> Federation enables geographically distributed clusters to communicate securely while maintaining independent operation.
+
+</details>
+
+
+<br>
+
+<details>
+<summary><strong>📜 Policy-as-Code</strong> — Define security and operational policies that are evaluated automatically at runtime.</summary>
 
 ```python
 from flock.policy.service import PolicyService
 from flock.policy.models import PolicyDefinition, PolicyRule
 
-policy_svc = PolicyService(node_id="node-1", event_bus=event_bus)
+policy_svc = PolicyService(
+    node_id="node-1",
+    event_bus=event_bus,
+)
 
 policy = PolicyDefinition(
     policy_id="deny-root",
@@ -1115,160 +1731,1040 @@ policy = PolicyDefinition(
         )
     ],
 )
+
 policy_svc.engine.load_policy(policy)
 ```
 
-### Disaster Recovery Snapshot
+> Policies can enforce security, compliance, scheduling constraints, or custom business rules without changing application code.
+
+</details>
+
+
+<br>
+
+<details>
+<summary><strong>💾 Disaster Recovery</strong> — Protect your cluster by creating snapshots and restoring state after failures.</summary>
 
 ```python
 from flock.recovery.service import RecoveryService
 
-recovery = RecoveryService(node_id="node-1", storage=storage, event_bus=event_bus)
+recovery = RecoveryService(
+    node_id="node-1",
+    storage=storage,
+    event_bus=event_bus,
+)
+
 await recovery.start()
 
-# Create a full cluster snapshot
-snapshot_id = await recovery.create_snapshot(label="pre-migration-backup")
+# Create a snapshot
+snapshot_id = await recovery.create_snapshot(
+    label="pre-migration-backup"
+)
 
-# Restore from a snapshot
+# Restore a snapshot
 await recovery.restore_snapshot(snapshot_id)
 ```
 
----
+> Snapshots capture a consistent view of cluster state, enabling reliable backup, migration, and disaster recovery workflows.
 
-## Testing
+</details>
 
-Flock ships with **629 tests** covering all 42 subsystems.
+<br>
+
+## 💡 Explore More
+
+<br>
+
+The `examples/` directory contains additional sample applications covering different Flock subsystems and integration patterns. Each example is designed to be self-contained, making it easy to experiment with specific features or use them as a starting point for your own projects.
+
+<br>
+
+> **The fastest way to learn Flock is to run the examples, modify them, and build from there.**
+
+
+<br>
+
+# 🧪 Testing
+
+<br>
+
+> Flock is built with **testability as a first-class design goal**. The complete test suite validates all **42 subsystems**, ensuring reliability across distributed components, communication layers, storage systems, and core services.
+
+<br>
+
+## 📊 Test Coverage Overview
+
+<br>
+
+| Metric                  | Result          |
+| ----------------------- | --------------- |
+| 🧩 Subsystems Tested    | **42**          |
+| ✅ Total Tests           | **629**         |
+| ⚡ Execution Time        | ~10 seconds     |
+| 🔍 Type Checking        | `mypy --strict` |
+| 📁 Source Files Checked | 390             |
+
+<br>
+
+<details open>
+<summary><strong>▶️ Running Tests</strong> — Execute the complete Flock validation suite and verify system correctness.</summary>
+
+### Run Full Test Suite
 
 ```bash
-# Run the full test suite
 python -m pytest tests/ -v
+```
 
-# Run a specific subsystem
+This runs all tests across every subsystem.
+
+---
+
+### Run a Specific Subsystem
+
+```bash
 python -m pytest tests/test_consensus_service.py -v
+```
 
-# Run with coverage
+Useful when developing or debugging a particular component.
+
+---
+
+### Generate Coverage Report
+
+Install coverage support:
+
+```bash
 pip install pytest-cov
-python -m pytest tests/ --cov=src/flock --cov-report=html
+```
 
-# Run mypy strict type check
+Run tests with coverage:
+
+```bash
+python -m pytest tests/ \
+    --cov=src/flock \
+    --cov-report=html
+```
+
+The generated HTML report provides a detailed view of:
+
+* Covered modules
+* Missing lines
+* Coverage percentage
+* Test distribution
+
+---
+
+### Run Strict Type Checking
+
+```bash
 mypy --strict src/
 ```
 
-### Test Results
+Flock uses strict static typing to catch interface errors before runtime.
 
-```
+</details>
+
+<br>
+
+<details>
+<summary><strong>📈 Test Results</strong> — Latest validation results from the complete test and type-checking pipeline.</summary>
+
+### Pytest Results
+
+```text
 629 passed in ~10s
-Success: no issues found in 390 source files (mypy --strict)
 ```
 
----
+### Type Checking Results
 
-## Project Structure
-
+```text
+Success: no issues found in 390 source files
 ```
+
+</details>
+
+<br>
+
+<details>
+<summary><strong>🧩 Testing Philosophy</strong> — How Flock maintains reliability across a distributed architecture.</summary>
+
+Flock testing focuses on:
+
+| Area                        | Purpose                                            |
+| --------------------------- | -------------------------------------------------- |
+| 🏗️ **Subsystem Isolation** | Each component can be tested independently.        |
+| 🔄 **Integration Testing**  | Ensures services communicate correctly.            |
+| ⚡ **Async Testing**         | Validates concurrent workflows and event handling. |
+| 📨 **Messaging Tests**      | Verifies transport and routing behavior.           |
+| 🗳️ **Consensus Testing**   | Validates leader election and replication logic.   |
+| 💾 **Recovery Testing**     | Ensures snapshots and restoration work correctly.  |
+| 🔒 **Security Testing**     | Validates authentication and authorization flows.  |
+
+</details>
+
+<br>
+
+## 🚦 Development Workflow
+
+<br>
+
+A typical development cycle:
+
+```text
+        Write Code
+            │
+            ▼
+      Run Unit Tests
+            │
+            ▼
+    Run Type Checking
+            │
+            ▼
+   Validate Integration
+            │
+            ▼
+       Submit Change
+```
+
+<br>
+
+> **Every subsystem in Flock is continuously validated to keep the platform stable as new capabilities are added.**
+
+<br>
+
+# 🗂️ Project Structure
+
+<br>
+
+> Flock is organized as a **modular distributed platform** with **42 focused subsystems** under the `flock` package. Each subsystem owns a specific responsibility while communicating through shared interfaces, events, and dependency injection.
+
+<br>
+
+## 🌳 Repository Overview
+
+<br>
+
+```text
 Flock/
-├── src/
-│   └── flock/                    # Main package (42 subsystems)
-│       ├── __init__.py           # Public API: FlockError, NodeInfo, TaskSpec, TaskStatus
-│       ├── consensus/            # Raft consensus: election, log, replication, state machine
-│       ├── cluster/              # Membership registry and node models
-│       ├── security/             # Zero-Trust security stack
-│       ├── workflow/             # DAG workflow engine
-│       ├── observability/        # Metrics, tracing, alerts, profiling
-│       ├── federation/           # Multi-cloud cluster federation
-│       ├── controlplane/         # Fleet management and governance
-│       ├── policy/               # Policy-as-Code engine
-│       ├── recovery/             # Disaster recovery and snapshots
-│       ├── marketplace/          # Plugin registry
-│       └── ...                   # 32 more subsystems
-├── tests/                        # 211 test files, 629 tests
-├── examples/                     # Runnable usage examples
-├── docs/                         # Documentation and audit reports
-├── .github/workflows/ci.yml      # GitHub Actions CI pipeline
-└── pyproject.toml                # Package metadata and tool configuration
+│
+├── 📦 src/
+│   └── 🐦 flock/                         # Main package (42 subsystems)
+│       │
+│       ├── __init__.py                   # Public API exports
+│       │                                  # FlockError, NodeInfo, TaskSpec, TaskStatus
+│       │
+│       ├── 🗳️ consensus/                 # Raft consensus engine
+│       │                                  # Leader election, log replication,
+│       │                                  # state machine management
+│       │
+│       ├── 🏢 cluster/                   # Cluster membership
+│       │                                  # Node registry and cluster models
+│       │
+│       ├── 🔐 security/                  # Zero-Trust security framework
+│       │                                  # Authentication, RBAC, cryptography
+│       │
+│       ├── 🔄 workflow/                  # Distributed DAG workflow engine
+│       │
+│       ├── 📊 observability/             # Monitoring infrastructure
+│       │                                  # Metrics, tracing, profiling, alerts
+│       │
+│       ├── 🌍 federation/                # Multi-cloud federation layer
+│       │                                  # Cross-region cluster communication
+│       │
+│       ├── 🎛️ controlplane/              # Fleet management and governance
+│       │
+│       ├── 📜 policy/                    # Policy-as-Code engine
+│       │
+│       ├── 💾 recovery/                  # Disaster recovery subsystem
+│       │                                  # Snapshots and restoration
+│       │
+│       ├── 🧩 marketplace/               # Plugin registry and extensions
+│       │
+│       └── ...                           # 32 additional subsystems
+│
+├── 🧪 tests/                             # Automated test suite
+│                                         # 211 test files, 629 tests
+│
+├── 🚀 examples/                          # Runnable examples and demos
+│
+├── 📚 docs/                              # Documentation and audit reports
+│
+├── ⚙️ .github/
+│   └── workflows/
+│       └── ci.yml                        # GitHub Actions CI pipeline
+│
+└── 📄 pyproject.toml                     # Package metadata,
+                                          # dependencies, and tooling
 ```
 
----
+<br>
 
-## CI/CD
+## 🧩 Source Package Layout
 
-The GitHub Actions pipeline runs on every push and pull request to `main`:
+<br>
+
+<details open>
+<summary><strong>🐦 src/flock</strong> — Core package containing all distributed system capabilities.</summary>
+
+The `flock` package contains every subsystem required to run and extend the platform.
+
+### Public API
+
+```python
+from flock import (
+    FlockError,
+    NodeInfo,
+    TaskSpec,
+    TaskStatus,
+)
+```
+
+### Core Subsystems
+
+| Module          | Purpose                                      |
+| --------------- | -------------------------------------------- |
+| `consensus`     | Raft consensus, leader election, replication |
+| `cluster`       | Membership and node management               |
+| `security`      | Identity, authentication, authorization      |
+| `workflow`      | DAG-based workflow execution                 |
+| `observability` | Metrics, tracing, profiling                  |
+| `federation`    | Multi-region cluster federation              |
+| `controlplane`  | Fleet management                             |
+| `policy`        | Policy evaluation and enforcement            |
+| `recovery`      | Backup and restoration                       |
+| `marketplace`   | Plugin discovery and management              |
+
+</details>
+
+<br>
+
+<details>
+<summary><strong>🧪 tests</strong> — Comprehensive validation suite covering every major subsystem.</summary>
+
+The test suite validates:
+
+* ✅ Core domain models
+* ✅ Distributed communication
+* ✅ Consensus behavior
+* ✅ Event handling
+* ✅ Storage and recovery
+* ✅ Security workflows
+* ✅ Service integrations
+
+Current size:
+
+```text
+211 test files
+629 automated tests
+```
+
+</details>
+
+<br>
+
+
+<details>
+<summary><strong>🚀 examples</strong> — Runnable applications demonstrating Flock capabilities.</summary>
+
+Examples provide practical entry points for:
+
+* Cluster initialization
+* Federation
+* Policy management
+* Workflow execution
+* Recovery operations
+
+Each example is designed to be executed independently.
+
+</details>
+
+<br>
+
+<details>
+<summary><strong>📚 docs</strong> — Documentation, architecture guides, and audit material.</summary>
+
+Contains:
+
+* Architecture documentation
+* API references
+* Design principles
+* Operational guides
+* Audit reports
+
+</details>
+
+<br>
+
+<details>
+<summary><strong>⚙️ CI/CD</strong> — Automated quality checks using GitHub Actions.</summary>
+
+The CI pipeline validates:
+
+* 🧪 Test execution
+* 🔍 Type checking
+* 📦 Package integrity
+* 🚦 Build verification
+
+Configuration:
+
+```text
+.github/workflows/ci.yml
+```
+
+</details>
+
+<br>
+
+## 🏗️ Architecture Flow
+
+<br>
+
+```text
+                 Flock Platform
+                       │
+                       ▼
+              ┌─────────────────┐
+              │   src/flock     │
+              └────────┬────────┘
+                       │
+        ┌──────────────┼──────────────┐
+        ▼              ▼              ▼
+   Core Services   Infrastructure   Extensions
+        │              │              │
+        ▼              ▼              ▼
+ Consensus       Messaging       Plugins
+ Workflow        Storage         Marketplace
+ Security        Transport       Federation
+```
+
+<br>
+
+> **The repository structure mirrors the architecture itself: small, focused subsystems connected through clear interfaces, making Flock easy to understand, test, and extend.**
+
+<br>
+
+# 🚦 CI/CD Pipeline
+
+<br>
+
+> Flock uses an automated **GitHub Actions CI pipeline** to maintain code quality, reliability, and consistency across all changes.
+
+<br>
+
+Every **push** and **pull request** targeting `main` automatically triggers the validation workflow.
+
+<br>
+
+## 🔄 Pipeline Overview
+
+<br>
+
+```text
+Developer Push / Pull Request
+              │
+              ▼
+      GitHub Actions Runner
+              │
+              ▼
+      Install Environment
+              │
+              ▼
+       Type Validation
+              │
+              ▼
+       Test Execution
+              │
+              ▼
+        Merge Approved ✅
+```
+
+<br>
+
+<details open>
+<summary><strong>⚙️ CI Workflow Steps</strong> — Automated checks executed for every code change.</summary>
+
+### 1️⃣ Setup Python Environment
 
 ```yaml
-steps:
-  - Set up Python 3.11
-  - pip install (all dependencies including msgpack, pytest-asyncio)
-  - pip install -e .
-  - mypy --strict src/         # Zero-tolerance type checking
-  - python -m pytest tests/ -v  # Full 629-test regression suite
+- Set up Python 3.11
 ```
 
-All checks must pass before merging.
+The pipeline runs against the supported Python runtime to ensure consistent behavior.
 
 ---
 
-## Contributing
-
-Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting a pull request.
-
-**Quick contribution guide:**
+### 2️⃣ Install Dependencies
 
 ```bash
-# 1. Fork and clone
-git clone https://github.com/YOUR_USERNAME/Flock.git
-cd Flock
-
-# 2. Install dev dependencies
-pip install -e .[dev]
-
-# 3. Make your changes
-
-# 4. Run the full validation suite
-mypy --strict src/
-python -m pytest tests/ -v
-
-# 5. Submit a pull request against main
+pip install -r requirements
 ```
 
-### Code Standards
-- All code must pass `mypy --strict` — zero `# type: ignore` exceptions
-- All new features require corresponding tests
-- Follow the existing immutable dataclass + dependency injection patterns
-- Use `structlog` for all logging — no `print()` in library code
+Installs all required dependencies, including:
+
+* 📦 `msgpack` — binary serialization support
+* 🧪 `pytest` — testing framework
+* ⚡ `pytest-asyncio` — async test support
 
 ---
 
-## Security
+### 3️⃣ Install Flock Package
 
-Please report security vulnerabilities privately — see [SECURITY.md](SECURITY.md) for the responsible disclosure process.
+```bash
+pip install -e .
+```
 
----
-
-## License
-
-MIT License — see [LICENSE](LICENSE) for full text.
+Installs Flock in editable mode so the CI environment tests the actual source package.
 
 ---
 
-## Citation
+### 4️⃣ Strict Type Checking
 
-If you use Flock in research or production, please cite:
+```bash
+mypy --strict src/
+```
+
+Flock uses zero-tolerance type checking to detect:
+
+* Missing type annotations
+* Invalid interfaces
+* Unsafe type usage
+* Contract violations
+
+---
+
+### 5️⃣ Full Regression Test Suite
+
+```bash
+python -m pytest tests/ -v
+```
+
+Runs the complete automated test suite:
+
+```text
+629 tests
+42 subsystems
+```
+
+---
+
+</details>
+
+<br>
+
+<details>
+<summary><strong>✅ Quality Gates</strong> — Conditions required before changes can be merged.</summary>
+
+Every pull request must successfully complete:
+
+| Check                 | Requirement                         |
+| --------------------- | ----------------------------------- |
+| 🐍 Python Environment | Python 3.11 setup                   |
+| 📦 Dependencies       | All packages installed successfully |
+| 🔍 Type Safety        | `mypy --strict` passes              |
+| 🧪 Tests              | All 629 tests pass                  |
+| 🚦 Pipeline Status    | No CI failures                      |
+
+</details>
+
+<br>
+
+## 🛡️ Why CI Matters
+
+<br>
+
+The CI pipeline protects Flock by ensuring:
+
+* 🔒 New changes do not break existing behavior
+* 🧩 Subsystems remain compatible
+* 🧪 Distributed components stay validated
+* 📈 Code quality remains consistent
+* 🚀 Releases are safer and predictable
+
+<br>
+
+> **Every change entering the main branch is automatically verified against Flock's type safety and regression standards.**
+
+<br>
+
+# 🤝 Contributing
+
+<br>
+
+> Contributions help Flock grow. Whether you're fixing bugs, improving documentation, adding features, or expanding subsystems, every contribution is welcome.
+
+<br>
+
+Before submitting changes, please review the full contribution guidelines in [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+<br>
+
+## 🚀 Quick Start
+
+<br>
+
+Follow these steps to set up your development environment and submit your first contribution.
+
+<br>
+
+<details open>
+<summary><strong>🛠️ Development Workflow</strong> — Fork, develop, validate, and submit your changes.</summary>
+
+### 1️⃣ Fork & Clone
+
+Create your fork and clone it locally:
+
+```bash id="zj1d7r"
+git clone https://github.com/YOUR_USERNAME/Flock.git
+cd Flock
+```
+
+---
+
+### 2️⃣ Install Development Dependencies
+
+Install Flock with all development tools:
+
+```bash id="h8x5sl"
+pip install -e .[dev]
+```
+
+This installs:
+
+* 🧪 Testing tools
+* 🔍 Type checking tools
+* 🛠️ Development utilities
+
+---
+
+### 3️⃣ Make Your Changes
+
+When developing:
+
+* Follow existing architecture patterns
+* Keep changes focused
+* Add tests for new functionality
+* Maintain backward compatibility
+
+---
+
+### 4️⃣ Run Validation
+
+Before opening a pull request, run the complete validation pipeline:
+
+```bash id="m4wx2q"
+mypy --strict src/
+
+python -m pytest tests/ -v
+```
+
+Your changes must pass:
+
+* ✅ Strict type checking
+* ✅ Full regression suite
+* ✅ Existing subsystem tests
+
+---
+
+### 5️⃣ Submit Pull Request
+
+Submit your pull request against:
+
+```text id="9gc7v3"
+main
+```
+
+Ensure the PR description explains:
+
+* What changed
+* Why the change is needed
+* How it was tested
+
+</details>
+
+<br>
+
+<details>
+<summary><strong>📏 Code Standards</strong> — Development rules that keep Flock consistent, reliable, and maintainable.</summary>
+
+All contributions must follow these standards:
+
+---
+
+### 🔍 Type Safety
+
+All code must pass:
+
+```bash id="2cgq6r"
+mypy --strict src/
+```
+
+Requirements:
+
+* ✅ Complete type annotations
+* ✅ No unchecked typing shortcuts
+* 🚫 No `# type: ignore` exceptions
+
+---
+
+### 🧪 Testing Requirements
+
+Every new feature must include tests.
+
+| Change           | Requirement                  |
+| ---------------- | ---------------------------- |
+| New feature      | Add corresponding tests      |
+| Bug fix          | Add regression test          |
+| API change       | Update API tests             |
+| Subsystem change | Validate affected components |
+
+---
+
+### 🧩 Architecture Patterns
+
+Follow Flock's core design principles:
+
+* 🔒 Use immutable dataclasses
+* 🏛️ Use dependency injection
+* ⚡ Prefer event-driven communication
+* 🚚 Keep infrastructure replaceable
+* 🧩 Avoid unnecessary coupling
+
+Example:
+
+```python id="zv2s3d"
+@dataclass(frozen=True)
+class DomainModel:
+    value: str
+```
+
+---
+
+### 📝 Logging
+
+Use `structlog` for all library logging.
+
+✅ Recommended:
+
+```python id="x1n3k9"
+logger.info(
+    "task_started",
+    task_id=task_id,
+)
+```
+
+❌ Avoid:
+
+```python id="d6s9w4"
+print("Task started")
+```
+
+Library code should never use `print()` for logging.
+
+---
+
+</details>
+
+<br>
+
+## 🧭 Contribution Checklist
+
+<br>
+
+Before submitting a pull request:
+
+
+
+| Check                               |
+| ----------------------------------- |
+| 📦 Dependencies installed           |
+| 🧪 Tests added/updated              |
+| 🔍 `mypy --strict` passes           |
+| 🚫 No `type: ignore` added          |
+| 🔒 Immutable models followed        |
+| 🏛️ Dependency injection maintained |
+| 📝 Logging uses `structlog`         |
+
+<br>
+
+> **Great contributions are not only about adding code—they preserve the architecture, quality, and principles that make Flock scalable.**
+
+<br>
+
+# 🔐 Security
+
+<br>
+
+> Security is a core part of Flock's architecture. Vulnerability reports are handled through a **responsible disclosure process** to ensure issues can be investigated and resolved safely before public discussion.
+
+<br>
+
+## 🛡️ Reporting Security Issues
+
+<br>
+
+If you discover a potential security vulnerability, please **do not open a public issue**.
+
+Instead, report it privately by following the process described in:
+
+📄 [`SECURITY.md`](SECURITY.md)
+
+<br>
+
+<details open>
+<summary><strong>🚨 Responsible Disclosure</strong> — How security reports are handled safely and efficiently.</summary>
+
+When reporting a vulnerability, please include:
+
+* 🔍 **Description** — Clear explanation of the issue
+* 🧩 **Affected Component** — Subsystem, module, or service involved
+* 📝 **Reproduction Steps** — Minimal steps to reproduce the behavior
+* 💥 **Impact Assessment** — Potential security impact
+* 🛠️ **Suggested Fix** — If you have recommendations
+
+Providing detailed information helps the maintainers investigate and resolve the issue quickly.
+
+</details>
+
+<br>
+
+<details>
+<summary><strong>🔒 Security Areas</strong> — Components covered by Flock's security model.</summary>
+
+Security considerations include:
+
+| Area                   | Description                                      |
+| ---------------------- | ------------------------------------------------ |
+| 🔑 Authentication      | Identity verification between nodes and services |
+| 🛡️ Authorization      | Access control and permission enforcement        |
+| 🔐 Cryptography        | Secure communication and secret handling         |
+| 🌐 Federation Security | Trust management between clusters                |
+| 📜 Policy Enforcement  | Runtime security and compliance rules            |
+| 💾 Data Protection     | Secure storage and recovery mechanisms           |
+
+</details>
+
+<br>
+
+## ⚠️ Please Avoid
+
+<br>
+
+To protect users and maintainers:
+
+* ❌ Do not publicly disclose unpatched vulnerabilities
+* ❌ Do not include sensitive data in reports
+* ❌ Do not test against systems without authorization
+* ❌ Do not publish exploit details before a fix is available
+
+<br>
+
+> **Responsible disclosure helps keep the Flock ecosystem secure while giving maintainers the opportunity to protect all users.**
+
+<br>
+
+# 📄 License
+
+<br>
+
+> Flock is released under the **MIT License**, allowing developers to freely use, modify, distribute, and build upon the project while preserving the original license terms.
+
+<br>
+
+## ⚖️ MIT License
+
+<br>
+
+Flock is open source software licensed under the MIT License.
+
+The full license text is available here:
+
+📄 [`LICENSE`](LICENSE)
+
+<br>
+
+<details open>
+<summary><strong>✨ What This Means</strong> — The permissions and responsibilities provided by the MIT License.</summary>
+
+The MIT License allows you to:
+
+| Permission   | Description                                              |
+| ------------ | -------------------------------------------------------- |
+| ✅ Use        | Use Flock for personal, commercial, or internal projects |
+| ✅ Modify     | Change and adapt the source code                         |
+| ✅ Distribute | Share original or modified versions                      |
+| ✅ Integrate  | Include Flock in larger applications                     |
+
+</details>
+
+<br>
+
+<details>
+<summary><strong>📌 License Requirements</strong> — Conditions that apply when using Flock.</summary>
+
+When redistributing Flock or derivative works:
+
+* Include the original copyright notice
+* Include the MIT License text
+* Preserve license attribution
+
+</details>
+
+<br>
+
+## 🌱 Open Source Commitment
+
+<br>
+
+Flock is built with the goal of being:
+
+* 🧩 Accessible to developers and organizations
+* 🔄 Easy to extend and integrate
+* 🌍 Community-driven and transparent
+* 🚀 Free to use across different environments
+
+<br>
+
+> **The MIT License keeps Flock flexible while ensuring proper attribution to the project and its contributors.**
+
+<br>
+
+# 📚 Citation
+
+<br>
+
+> If you use Flock in **research, academic work, technical publications, or production systems**, please cite the project to acknowledge the work and help others discover the platform.
+
+<br>
+
+## 📝 BibTeX Citation
+
+<br>
+
+Use the following BibTeX entry:
 
 ```bibtex
 @software{flock2026,
-  title  = {Flock: Enterprise-Grade Federated Distributed Computing Platform},
-  year   = {2026},
-  url    = {https://github.com/Ashish6298/Flock},
+  title   = {Flock: Enterprise-Grade Federated Distributed Computing Platform},
+  author  = {Ashish6298},
+  year    = {2026},
+  url     = {https://github.com/Ashish6298/Flock},
   version = {1.0.0}
 }
 ```
 
----
+<br>
 
-<div align="center">
+<details open>
+<summary><strong>📖 Citation Guidelines</strong> — When and why to cite Flock.</summary>
+
+Please cite Flock when you:
+
+* 🔬 Use Flock as part of research or experiments
+* 📄 Reference Flock in technical papers or articles
+* 🏢 Deploy Flock in production systems
+* 🧩 Build extensions or integrations based on Flock
+* 📚 Include Flock in educational material
+
+</details>
+
+<br>
+
+## 🌐 Repository
+
+<br>
+
+Source code and project information:
+
+```text
+https://github.com/Ashish6298/Flock
+```
+
+<br>
+
+> **Citing Flock helps recognize the project and supports continued development of the platform.**
+
+<br>
+
+
+<div align="left">
+
+# 🐦 Flock
+
+### Enterprise-Grade Federated Distributed Computing Platform
 
 **Built with ❤️ for the distributed systems community**
 
-[PyPI](https://pypi.org/project/flock-p2p/) · [GitHub](https://github.com/Ashish6298/Flock) · [Issues](https://github.com/Ashish6298/Flock/issues) · [Discussions](https://github.com/Ashish6298/Flock/discussions)
+Flock provides a modular foundation for building resilient distributed systems with
+consensus, federation, workflows, security, observability, and scalable execution.
+
+<br>
+
+## 🌟 Explore Flock
+
+<br>
+
+|     🚀 Get Started     |       🏗️ Architecture       |    🤝 Contribute    |
+| :--------------------: | :--------------------------: | :-----------------: |
+| Install & run examples |     Explore 42 subsystems    |   Join development  |
+|      Learn the API     | Understand design principles | Submit improvements |
+
+<br>
+
+## 🧩 Built Around
+
+<br>
+
+```
+🗳️ Consensus     ⚡ Event Driven     🔐 Security
+🌍 Federation    📊 Observability    🔄 Workflows
+💾 Recovery      📨 Messaging        🧠 Intelligence
+```
+
+<br/>
+
+## 🌍 Community
+
+<br>
+
+Have ideas, improvements, or questions?
+
+💬 Join discussions · 🐛 Report issues · 🚀 Share your projects built with Flock
+
+<br/>
+
+<br>
+
+## 📚 Resources
+
+<br/>
+
+<div align="left">
+
+<p>
+<a href="https://pypi.org/project/flock-p2p/">📦 PyPI</a>
+&nbsp;&nbsp;•&nbsp;&nbsp;
+<a href="https://github.com/Ashish6298/Flock">💻 Source Code</a>
+&nbsp;&nbsp;•&nbsp;&nbsp;
+<a href="https://github.com/Ashish6298/Flock/issues">🐛 Bug Reports</a>
+&nbsp;&nbsp;•&nbsp;&nbsp;
+<a href="https://github.com/Ashish6298/Flock/discussions">💬 Community Discussions</a>
+</p>
 
 </div>
+
+<br/>
+
+</div>
+
+<br>
+
+<div align="center">
+
+**Built with ❤️ by the Flock community**
+
+<sub>
+Open source · Distributed by design · MIT Licensed
+</sub>
+
+</div>
+
