@@ -42,7 +42,7 @@
 </tr>
 </table>
 
-[**Get Started**](#installation) &nbsp;•&nbsp; [Quick Start](#quick-start) &nbsp;•&nbsp; [Architecture](#architecture) &nbsp;•&nbsp; [API Reference](#api-reference) &nbsp;•&nbsp; [Contributing](#contributing)
+[**Get Started**](#-installation) &nbsp;•&nbsp; [Quick Start](#quick-start) &nbsp;•&nbsp; [Architecture](#architecture) &nbsp;•&nbsp; [API Reference](#api-reference) &nbsp;•&nbsp; [Contributing](#contributing)
 
 </div>
 
