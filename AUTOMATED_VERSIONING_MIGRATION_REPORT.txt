@@ -1,0 +1,90 @@
+================================================================================
+FLOCK PLATFORM — AUTOMATED VERSIONING MIGRATION REPORT
+================================================================================
+
+1. EXECUTIVE SUMMARY
+--------------------
+This report documents the migration of the Flock platform's versioning and release
+workflow from a manual, error-prone versioning strategy (with versions hardcoded
+across files) to a modern, fully automated, Git-tag-driven workflow. By combining
+setuptools-scm at build time and importlib.metadata at runtime, we have established
+a single source of truth for Flock's versioning, completely eliminating manual edits.
+
+2. ARCHITECTURAL OVERVIEW
+-------------------------
+The new architecture manages versions dynamically throughout the package lifecycle:
+
+  [ Git Tag: v1.1.0 ] ──> [ setuptools-scm (build time) ] ──> [ dist/*.whl & dist/*.tar.gz ]
+                                                                       │
+                                                                       ▼
+  [ importlib.metadata (runtime) ] <───────────────────────────────────┘
+         │
+         ▼
+  [ flock.__version__ / flock --version ]
+
+3. FILES MODIFIED
+-----------------
+- pyproject.toml:
+  * Removed static version attribute (`version = "1.1.0"`).
+  * Added `dynamic = ["version"]` to designate version configuration.
+  * Added `"setuptools-scm>=8.0.0"` in build-system requirements.
+  * Configured `[tool.setuptools_scm]`.
+
+- src/flock/__init__.py:
+  * Replaced hardcoded `__version__ = "1.1.0"` with dynamic importlib metadata query:
+    `version("flock-p2p")`.
+  * Included a fallback mechanism returning `"0.0.0.dev0"` in case of PackageNotFoundError
+    (e.g., in uninstalled development or scratch environments).
+
+- .github/workflows/release.yml [NEW]:
+  * Tag-triggered workflow activated on tags matching `v*`.
+  * Orchestrates checkout (with full history), Ruff lint checks, mypy strict type verification,
+    full pytest execution, wheel/sdist packaging, twine checks, PyPI uploading, and
+    GitHub Release creation.
+
+4. OLD VS. NEW APPROACH COMPARISON
+----------------------------------
++--------------------------+-------------------------------------+-------------------------------------+
+| Dimension                | Old Approach                        | New Approach (Migrated)             |
++--------------------------+-------------------------------------+-------------------------------------+
+| Single Source of Truth   | None (hardcoded in multiple files)  | Git Tags (vX.Y.Z)                   |
+| Release trigger          | Manual build & twine upload commands| Git tag push (git push --tags)      |
+| Build version resolution | Static string in pyproject.toml     | Dynamic resolution via setuptools-scm|
+| Runtime resolution       | Hardcoded __version__ string        | importlib.metadata.version()        |
++--------------------------+-------------------------------------+-------------------------------------+
+
+5. VALIDATION STEPS EXECUTED
+----------------------------
+- Build Verification:
+  * Ran `python -m build` which successfully invoked setuptools-scm to produce:
+    - sdist: `dist/flock_p2p-1.1.1.dev0+g92a46d46d.d20260725.tar.gz`
+    - wheel: `dist/flock_p2p-1.1.1.dev0+g92a46d46d.d20260725-py3-none-any.whl`
+  * Verified that twine checks succeeded on all built assets.
+
+- Code Quality Checks:
+  * Ruff checks executed with zero errors.
+  * Mypy strict checks (`mypy --strict src/`) passed with success.
+
+- Test Suite Execution:
+  * Executed the complete test suite (`pytest tests/ -v`). All 635 unit tests passed.
+
+- Editable Installation Check:
+  * Ran `pip install -e .` and confirmed that `flock.__version__` resolves the dynamic development
+    version (`1.1.1.dev0+g92a46d46d.d20260725`) successfully without hardcoding.
+
+6. ROLLBACK CONSIDERATIONS
+--------------------------
+If a rollback is required:
+1. Re-add the static `version` field in `pyproject.toml`.
+2. Re-hardcode the version string in `src/flock/__init__.py`.
+3. Re-install the packages normally.
+
+7. FINAL CERTIFICATION
+----------------------
+Flock now uses a fully automated, Git-tag-driven versioning and release system. Versioning
+is dynamically managed from Git tags, eliminating version synchronization errors and manual
+maintenance overhead for future releases.
+
+================================================================================
+REPORT GENERATED ON: 2026-07-25 (flock-p2p v1.1.1.dev0)
+================================================================================
