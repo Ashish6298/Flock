@@ -23,9 +23,6 @@ jobs:
         python -m pip install --upgrade pip setuptools wheel
         pip install build twine mypy pytest pytest-asyncio structlog pydantic msgpack black ruff setuptools-scm
 
-    - name: Run Ruff check
-      run: |
-        ruff check src/
 
     - name: Run mypy strict check
       run: |

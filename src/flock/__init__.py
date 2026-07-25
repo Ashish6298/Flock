@@ -1,6 +1,6 @@
 """Flock framework core package initialization."""
 
-from importlib.metadata import version, PackageNotFoundError
+from importlib.metadata import PackageNotFoundError, version
 from flock.exceptions import FlockError
 from flock.types import NodeInfo, TaskSpec, TaskStatus
 
