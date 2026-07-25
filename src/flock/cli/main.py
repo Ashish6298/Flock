@@ -580,6 +580,11 @@ def get_dashboard_layout(selected: int, status_text: str = "") -> Group:
     )
 
 
+def render_dashboard(console: Console, selected: int | None, is_install: bool = False) -> None:
+    """Wrapper around render_full_dashboard for backward compatibility (e.g. tests)."""
+    render_full_dashboard(console, selected, is_install)
+
+
 def render_full_dashboard(console: Console, selected: int | None, is_install: bool = False) -> None:
     """Render the complete dashboard responsively (used only by the post-install hook)."""
     width = console.width
