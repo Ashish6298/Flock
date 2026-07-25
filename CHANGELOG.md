@@ -1,3 +1,16 @@
+## [1.1.0] - 2026-07-25
+
+### Flock v1.1.0 Interactive Onboarding & Installation Experience
+
+#### Added
+- src/flock/cli/main.py: Redesigned CLI onboarding dashboard featuring a cyan retro pixel-art aesthetic and system indicators.
+- tests/test_onboarding.py: Comprehensive test suite validating status helpers, panel constructions, webbrowser/process hooks, and diagnostics.
+
+#### Changed
+- pyproject.toml: Updated version to 1.1.0, added rich dependency, and registered "flock" entrypoint.
+- src/flock/__init__.py: Updated __version__ to 1.1.0.
+- src/flock/cli/__init__.py: Expose welcome/onboarding entrypoint.
+
 ## [1.0.0] - 2026-07-22
 
 ### Phase 42 - Version 1.0.0 GA Release, Final Stabilization & Enterprise Certification

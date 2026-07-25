@@ -42,8 +42,10 @@ from flock.cli.history import HistoryLogger
 from flock.cli.session import SessionManager
 from flock.cli.executor import CommandExecutionEngine
 from flock.cli.service import CliService
+from flock.cli.main import main
 
 __all__ = [
+    "main",
     "CommandNotFoundError",
     "CommandExecutionError",
     "CommandValidationError",
