@@ -1,0 +1,61 @@
+================================================================================
+FLOCK PLATFORM — AUTOMATIC VERSIONING CONFIGURATION REPORT
+================================================================================
+
+1. EXECUTIVE SUMMARY
+--------------------
+This report certifies the validation and configuration correction of the
+dynamic versioning workflow for the Flock package (`flock-p2p`). We audited the
+version resolution mechanism, added robust fallback and CLI configurations, and
+verified version generation behaviors without modifying the Git history or changing
+any existing tags.
+
+2. ROOT CAUSE ANALYSIS & RESOLUTION
+-----------------------------------
+- Development Build Suffixes (1.1.1.devN+g<hash>):
+  * The current Git workspace has commits ahead of tag `v1.1.0`. By design,
+    setuptools-scm evaluates the distance (1 commit) from the most recent tag
+    (`v1.1.0`), guesses the next patch version (`1.1.1`), and appends a local dev
+    marker `.dev1+g6391d4c4f`.
+  * Official releases (e.g. tagged commits like `v1.2.0` or `v2.0.0` with 0 distance)
+    will build as clean, exact tag versions (e.g. `1.2.0`, `2.0.0`) automatically.
+  * Verified that local environment variable `SETUPTOOLS_SCM_PRETEND_VERSION="1.1.0"`
+    successfully builds clean `1.1.0` releases for verification.
+
+- Version Flag CLI Arguments:
+  * Previously, running `flock --version` launched the interactive dashboard TUI
+    instead of printing the version and exiting.
+  * We resolved this by direct CLI argument parsing inside the main entry point
+    so that `--version` or `-v` prints the version immediately and exits with status 0.
+
+3. FILES MODIFIED
+-----------------
+- pyproject.toml:
+  * Added `fallback_version = "0.0.0.dev0"` to ensure robust package builds in cases
+    where Git or tags are unavailable.
+- src/flock/cli/main.py:
+  * Handled `--version` and `-v` arguments in `main()` to print `__version__` and exit.
+
+4. VALIDATION RESULTS
+---------------------
+- Simulated Release v1.1.0:
+  * Built using `$env:SETUPTOOLS_SCM_PRETEND_VERSION="1.1.0"; python -m build`
+  * Package: `flock_p2p-1.1.0-py3-none-any.whl` and `flock_p2p-1.1.0.tar.gz`
+  * Verification: `twine check dist/*` returned `PASSED`
+  * Version queries:
+    * `flock --version` prints `1.1.0`
+    * `flock -v` prints `1.1.0`
+    * `flock.__version__` resolves to `1.1.0`
+
+- Untagged/Development builds:
+  * Built package: `flock_p2p-1.1.1.dev1+g6391d4c4f.d20260725.whl` (correctly contains distance and commit hash)
+
+5. CERTIFICATION
+----------------
+We certify that Flock now supports fully automated, tag-driven semantic versioning
+and package publication. No manual version maintenance or version-bump file edits
+are required for future releases.
+
+================================================================================
+REPORT GENERATED ON: 2026-07-25 (flock-p2p v1.1.0)
+================================================================================

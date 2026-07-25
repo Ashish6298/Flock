@@ -846,6 +846,11 @@ def show_splash_animation(console: Console) -> None:
 
 def main() -> None:
     """Launch the interactive Flock dashboard."""
+    # Direct command-line flag handling for version
+    if len(sys.argv) > 1 and sys.argv[1] in ("--version", "-v"):
+        print(__version__)
+        sys.exit(0)
+
     console = get_console()
     if console is None:
         print("Error: Rich library is required for interactive console mode.")
