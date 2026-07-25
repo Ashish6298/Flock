@@ -538,28 +538,35 @@ await consensus.start()
 
 <table width="100%">
 <tr>
-<td align="center" width="25%">
+<td align="center" width="20%">
 
-### ✅ **629 Tests**
+### ✅ **635 Tests**
 
 <sub>Full regression coverage, 42 subsystems</sub>
 
 </td>
-<td align="center" width="25%">
+<td align="center" width="20%">
 
 ### 🔤 **Fully Typed**
 
 <sub>`mypy --strict` clean, 390 source files</sub>
 
 </td>
-<td align="center" width="25%">
+<td align="center" width="20%">
 
 ### 📦 **Single Install**
 
 <sub>`pip install flock-p2p`</sub>
 
 </td>
-<td align="center" width="25%">
+<td align="center" width="20%">
+
+### 🖥️ **TUI Dashboard**
+
+<sub>Keyboard-driven CLI dashboard (`flock`)</sub>
+
+</td>
+<td align="center" width="20%">
 
 ### 🐍 **Python 3.11+**
 
@@ -580,6 +587,16 @@ pip install flock-p2p
 ```
 
 </div>
+
+### 🖥️ Interactive CLI Dashboard
+
+Once installed, you can immediately launch the interactive TUI onboarding dashboard by running:
+
+```bash
+flock
+```
+
+This starts a keyboard-driven, in-place terminal dashboard that lets you run diagnostics, launch local cluster simulations, view examples, check version details, and access documentation.
 
 ### Requirements
 
