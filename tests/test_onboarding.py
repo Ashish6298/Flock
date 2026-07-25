@@ -99,3 +99,26 @@ def test_run_action_diagnostics() -> None:
     # Option 2: Run Diagnostics
     res = run_action(2, console)
     assert res is True
+
+
+def test_cli_flags() -> None:
+    """Test main entry point handling of CLI flag parameters."""
+    from flock.cli.main import main
+    
+    # Test --version flag
+    with patch("sys.argv", ["flock", "--version"]), patch("builtins.print") as mock_print, pytest.raises(SystemExit) as sysexit:
+        main()
+    assert sysexit.value.code == 0
+    assert mock_print.called
+
+    # Test --help flag
+    with patch("sys.argv", ["flock", "--help"]), patch("builtins.print") as mock_print, pytest.raises(SystemExit) as sysexit:
+        main()
+    assert sysexit.value.code == 0
+    assert mock_print.called
+
+    # Test --diagnostics flag
+    with patch("sys.argv", ["flock", "--diagnostics"]), patch("flock.cli.main.run_diagnostics") as mock_diag, pytest.raises(SystemExit) as sysexit:
+        main()
+    assert sysexit.value.code == 0
+    assert mock_diag.called

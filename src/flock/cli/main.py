@@ -846,10 +846,28 @@ def show_splash_animation(console: Console) -> None:
 
 def main() -> None:
     """Launch the interactive Flock dashboard."""
-    # Direct command-line flag handling for version
-    if len(sys.argv) > 1 and sys.argv[1] in ("--version", "-v"):
-        print(__version__)
-        sys.exit(0)
+    # Direct command-line flag handling
+    if len(sys.argv) > 1:
+        arg = sys.argv[1]
+        if arg in ("--version", "-v"):
+            print(__version__)
+            sys.exit(0)
+        elif arg in ("--help", "-h"):
+            print("Flock — A Distributed Computing Platform\n")
+            print("Usage:")
+            print("  flock [options]\n")
+            print("Options:")
+            print("  -h, --help         Show this help message and exit.")
+            print("  -v, --version      Show the version and exit.")
+            print("  -d, --diagnostics  Run subsystem diagnostics directly.")
+            sys.exit(0)
+        elif arg in ("--diagnostics", "-d"):
+            con = get_console()
+            if con is None:
+                print("Error: Rich library is required to run diagnostics.")
+                sys.exit(1)
+            run_diagnostics(con)
+            sys.exit(0)
 
     console = get_console()
     if console is None:
