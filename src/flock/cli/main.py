@@ -37,7 +37,7 @@ class MenuItem:
     badge: Optional[str] = None
     badge_style: str = "cyan"
     detail: str = ""
-    checklist: list = field(default_factory=list)
+    checklist: list[str] = field(default_factory=list)
 
 
 # Branded cyan/teal color scheme
@@ -448,7 +448,7 @@ def quick_actions(selected: int | None = None) -> Panel | str:
 
         # expanded detail directly under the active row
         if active:
-            detail_lines = [Text(item.detail, style="grey58")]
+            detail_lines: list[Text | Table] = [Text(item.detail, style="grey58")]
             if item.checklist:
                 detail_lines.append(Text(""))
                 grid = Table.grid(padding=(0, 3))
