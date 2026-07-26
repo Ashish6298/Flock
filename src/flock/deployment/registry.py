@@ -48,3 +48,31 @@ class DeploymentRegistry:
             if deployment_id not in self._deployments:
                 raise DeploymentNotFoundError(f"Deployment '{deployment_id}' not found.")
             return list(self._revisions.get(deployment_id, []))
+
+    def get_latest_revision(self, deployment_id: str) -> Optional[DeploymentRevision]:
+        """Fetch the latest revision for a deployment."""
+        with self._lock:
+            revs = self._revisions.get(deployment_id, [])
+            if not revs:
+                return None
+            return sorted(revs, key=lambda r: r.revision_id)[-1]
+
+    def get_previous_stable_revision(self, deployment_id: str) -> Optional[DeploymentRevision]:
+        """Fetch the previous stable revision for a deployment."""
+        with self._lock:
+            revs = self._revisions.get(deployment_id, [])
+            if len(revs) < 2:
+                return None
+            return sorted(revs, key=lambda r: r.revision_id)[-2]
+
+    def prune_revisions(self, deployment_id: str, limit: int) -> int:
+        """Prune obsolete revisions exceeding retention limit."""
+        with self._lock:
+            revs = self._revisions.get(deployment_id, [])
+            if len(revs) <= limit:
+                return 0
+            sorted_revs = sorted(revs, key=lambda r: r.revision_id)
+            pruned_count = len(sorted_revs) - limit
+            self._revisions[deployment_id] = sorted_revs[-limit:]
+            return pruned_count
+

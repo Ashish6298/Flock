@@ -228,3 +228,77 @@ class DeploymentValidator:
             is_valid=len(errors) == 0,
             errors=errors
         )
+
+
+class RollbackResult(BaseModel):
+    """Execution status output report details."""
+    success: bool
+    message: str
+    previous_revision_id: int
+    restored_revision_id: int
+    timestamp: float = Field(default_factory=time.time)
+
+    model_config = {"frozen": True}
+
+
+class DeploymentSnapshot(BaseModel):
+    """Configuration history catalog state snapshot representation."""
+    deployment_id: str
+    revision_id: int
+    configuration: DeploymentConfiguration
+    status: DeploymentStatus
+    timestamp: float = Field(default_factory=time.time)
+
+    model_config = {"frozen": True}
+
+
+class ReleaseMetadata(BaseModel):
+    """Tracking fields identifying tags environment settings."""
+    release_id: str
+    version: str
+    environment: str
+    created_at: float = Field(default_factory=time.time)
+
+    model_config = {"frozen": True}
+
+
+class ReleaseVerificationResult(BaseModel):
+    """Post-deployment safety verification outcomes report."""
+    release_id: str
+    is_healthy: bool
+    checks_passed: List[str] = Field(default_factory=list)
+    errors: List[str] = Field(default_factory=list)
+
+    model_config = {"frozen": True}
+
+
+class DeploymentCheckpoint(BaseModel):
+    """Historical checkpoint markers for atomic rollback triggers."""
+    checkpoint_id: str
+    deployment_id: str
+    state_hash: str
+    timestamp: float = Field(default_factory=time.time)
+
+    model_config = {"frozen": True}
+
+
+class RollbackExecutionSummary(BaseModel):
+    """Detailed summary tracking executed steps details."""
+    rollback_id: str
+    duration_ms: float
+    strategy_used: str
+    audit_trail: List[str] = Field(default_factory=list)
+
+    model_config = {"frozen": True}
+
+
+class DeploymentAuditRecord(BaseModel):
+    """Audit logs tracing administrative transitions details."""
+    record_id: str
+    action: str  # "CREATE", "UPDATE", "ROLLBACK"
+    user: str
+    details: str
+    timestamp: float = Field(default_factory=time.time)
+
+    model_config = {"frozen": True}
+
