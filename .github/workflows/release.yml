@@ -8,6 +8,8 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
     - uses: actions/checkout@v4
       with:
@@ -39,21 +41,3 @@ jobs:
     - name: Verify distributions
       run: |
         python -m twine check dist/*
-
-    - name: Publish package to PyPI
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-      run: |
-        # Only upload if PYPI_API_TOKEN is configured
-        if [ -n "$TWINE_PASSWORD" ]; then
-          python -m twine upload dist/*
-        else
-          echo "PYPI_API_TOKEN not set, skipping PyPI publication."
-        fi
-
-    - name: Create GitHub Release
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        gh release create ${{ github.ref_name }} dist/* --title "Release ${{ github.ref_name }}" --generate-notes
