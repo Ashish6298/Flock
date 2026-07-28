@@ -36,7 +36,7 @@
 </td>
 <td align="center">
 
-[![Tests](https://img.shields.io/badge/tests-629%20passing-brightgreen?style=for-the-badge&logo=pytest&logoColor=white)](#testing)
+[![Tests](https://img.shields.io/badge/tests-663%20passing-brightgreen?style=for-the-badge&logo=pytest&logoColor=white)](#testing)
 
 </td>
 </tr>
@@ -52,7 +52,7 @@
 
 Flock is a fully-typed Python framework for building systems that run across multiple machines. It bundles the components a distributed system normally needs — Raft consensus, leader election, cluster membership, a message bus, scheduling, and security — into one importable package, so you wire up services with dependency injection instead of standing up separate infrastructure.
 
-It's built around 42 focused subsystems (`flock.consensus`, `flock.scheduler`, `flock.security`, `flock.workflow`, and others), each independently testable and typed under `mypy --strict`.
+It's built around 43 focused subsystems (`flock.consensus`, `flock.scheduler`, `flock.security`, `flock.workflow`, and others), each independently testable and typed under `mypy --strict`.
 
 | | |
 |---|---|
@@ -61,6 +61,24 @@ It's built around 42 focused subsystems (`flock.consensus`, `flock.scheduler`, `
 | **Consensus model** | Raft (leader election, log replication, snapshots) |
 | **Transport** | Pluggable — TCP built in |
 | **Install** | `pip install flock-p2p` |
+
+<br>
+
+## What's New in Flock v1.2.0
+
+Flock v1.2.0 introduces **Performance & Observability**, bringing a complete performance monitoring, profiling, and regression detection suite designed to analyze, monitor, and optimize your distributed clusters passively:
+
+- ⚡ **Performance Foundation (Speed Measurement)**: Easily measure how fast your code runs. Use timing decorators (`@time_execution`) to track execution times and run tests (`BenchmarkEngine`) to see how much throughput your servers can handle.
+
+- 🔍 **Runtime Profiling (Resource Analysis)**: See exactly where your app is spending its time and memory. It identifies slow parts of your code (hotspots) and tracks memory allocation deltas without slowing down your production environment.
+
+- 📉 **Regression Detection (Slowdown Prevention)**: Save a benchmark as a "baseline" when your app is running perfectly. Flock will automatically compare future runs against this baseline to warn you if a new code update makes the app slower.
+
+- 🎯 **Performance Optimization (Smart Suggestions)**: Get automated recommendations on what to fix. The engine scans your performance data and highlights critical bottlenecks ranked by priority (Critical, High, Medium, Low).
+
+- 📊 **Performance Monitoring (Real-time Health)**: View a live health status (Healthy, Degraded, Critical) of your cluster. It watches system metrics in real time and raises warnings if things slow down.
+
+- 📋 **Performance Reporting (Release Scorecards)**: Generate a simple performance scorecard (grades A to F) and readiness certificate to confirm if your app is ready and safe to release to users.
 
 <br>
 
@@ -349,7 +367,7 @@ await consensus.start()
 |---|---|---|
 | Time to first working cluster | Months | Minutes |
 | Infrastructure code you maintain | Thousands of lines | Already written |
-| Test coverage for edge cases | You write it all | 629 tests included |
+| Test coverage for edge cases | You write it all | 663 tests included |
 | Consensus algorithm correctness | Your responsibility | Implemented Raft, unit-tested |
 | Security posture | Your responsibility | Built-in mTLS, RBAC, secrets vault |
 | Ongoing maintenance | On you | Shared with the OSS community |
@@ -1136,6 +1154,7 @@ Visibility into the running cluster.
 | Subsystem            | Module                | Responsibility                               |
 | -------------------- | --------------------- | -------------------------------------------- |
 | 📈 **Observability** | `flock.observability` | Metrics, tracing, profiling, alerts, logging |
+| ⚡ **Performance**   | `flock.performance`   | High-resolution timing, profiling, regression checks, and engineering reporting |
 | 📺 **Dashboard**     | `flock.dashboard`     | Real-time operational dashboard              |
 
 <br>
@@ -1236,7 +1255,7 @@ Developer-facing tools.
 | ⚙️ Runtime & Scheduling      |  **4**  |
 | ☁️ Distributed Compute       |  **5**  |
 | 🌐 Networking                |  **2**  |
-| 📊 Operations                |  **2**  |
+| 📊 Operations                |  **3**  |
 | 🔐 Security & Governance     |  **3**  |
 | 🤖 Intelligence              |  **1**  |
 | 🌍 Enterprise                |  **4**  |
@@ -1245,7 +1264,7 @@ Developer-facing tools.
 
 <br>
 
-> **42 focused subsystems working together to provide a modular, scalable, distributed application platform.**
+> **43 focused subsystems working together to provide a modular, scalable, distributed application platform.**
 
 
 <br>
