@@ -2684,7 +2684,7 @@ Use the following BibTeX entry:
   author  = {Ashish6298},
   year    = {2026},
   url     = {https://github.com/Ashish6298/Flock},
-  version = {1.0.0}
+  version = {1.2.0}
 }
 ```
 
