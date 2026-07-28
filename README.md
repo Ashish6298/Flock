@@ -14,7 +14,7 @@
 </td>
 <td align="center">
 
-[![Python](https://img.shields.io/pypi/pyversions/flock-p2p.svg?style=for-the-badge&logo=python&logoColor=white)](https://pypi.org/project/flock-p2p/)
+[![Python](https://img.shields.io/badge/python-3.11+-blue.svg?style=for-the-badge&logo=python&logoColor=white)](https://pypi.org/project/flock-p2p/)
 
 </td>
 <td align="center">
