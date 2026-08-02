@@ -68,17 +68,21 @@ It's built around 43 focused subsystems (`flock.consensus`, `flock.scheduler`, `
 
 Flock v1.3.0 introduces **Plugin SDK & Extension API**, bringing a complete plugin framework supporting discovery, lifecycles, sandboxing, messaging, dependency injections, dynamic services, diagnostic observability, and CLI workspace tooling:
 
-- ⚡ **Performance Foundation (Speed Measurement)**: Easily measure how fast your code runs. Use timing decorators (`@time_execution`) to track execution times and run tests (`BenchmarkEngine`) to see how much throughput your servers can handle.
+- 🧩 **Plugin SDK & Extension API**: Easily write decoupled plugins extending core behaviors and capability configurations using standard interface classes.
 
-- 🔍 **Runtime Profiling (Resource Analysis)**: See exactly where your app is spending its time and memory. It identifies slow parts of your code (hotspots) and tracks memory allocation deltas without slowing down your production environment.
+- ⚙️ **Deterministic Lifecycle Engine**: Safely transit plugins through standard runtime lifecycle states (Loaded, Initialized, Active, Suspended, CleanedUp) using strict state machines.
 
-- 📉 **Regression Detection (Slowdown Prevention)**: Save a benchmark as a "baseline" when your app is running perfectly. Flock will automatically compare future runs against this baseline to warn you if a new code update makes the app slower.
+- 🔒 **Security Permissions & Sandbox**: Execute plugins safely in isolated contexts that restrict file, network, and system resource access through custom capability matrices.
 
-- 🎯 **Performance Optimization (Smart Suggestions)**: Get automated recommendations on what to fix. The engine scans your performance data and highlights critical bottlenecks ranked by priority (Critical, High, Medium, Low).
+- 📨 **Plugin Communication Framework**: Allow plugins to communicate safely through a decoupled Event Bus supporting events publishing, direct messages, and broadcasts.
 
-- 📊 **Performance Monitoring (Real-time Health)**: View a live health status (Healthy, Degraded, Critical) of your cluster. It watches system metrics in real time and raises warnings if things slow down.
+- 🚀 **Dependency Injection & Services**: Expose well-defined API services that other plugins can dynamically resolve and inject as structured class dependencies.
 
-- 📋 **Performance Reporting (Release Scorecards)**: Generate a simple performance scorecard (grades A to F) and readiness certificate to confirm if your app is ready and safe to release to users.
+- 📦 **Deterministic Packaging & Distribution**: Build, export, and install verified plugin archives utilizing reproducible entry timestamps and SHA-256 integrity audits.
+
+- 🩺 **Observability & Diagnostics Engine**: Monitor plugin latency and execution errors passively with threshold-based health status monitoring and automated diagnostic reports.
+
+- 🛠️ **Developer CLI & Workspace Scaffolding**: Bootstrap workspaces and generate boilerplate structures using unified developer commands (`flock list`, `flock inspect`).
 
 <br>
 
