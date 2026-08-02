@@ -64,9 +64,9 @@ It's built around 43 focused subsystems (`flock.consensus`, `flock.scheduler`, `
 
 <br>
 
-## What's New in Flock v1.2.0
+## What's New in Flock v1.3.0
 
-Flock v1.2.0 introduces **Performance & Observability**, bringing a complete performance monitoring, profiling, and regression detection suite designed to analyze, monitor, and optimize your distributed clusters passively:
+Flock v1.3.0 introduces **Plugin SDK & Extension API**, bringing a complete plugin framework supporting discovery, lifecycles, sandboxing, messaging, dependency injections, dynamic services, diagnostic observability, and CLI workspace tooling:
 
 - ⚡ **Performance Foundation (Speed Measurement)**: Easily measure how fast your code runs. Use timing decorators (`@time_execution`) to track execution times and run tests (`BenchmarkEngine`) to see how much throughput your servers can handle.
 

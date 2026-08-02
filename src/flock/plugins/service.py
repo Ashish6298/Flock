@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 import structlog
 
@@ -34,8 +34,10 @@ class PluginService:
 
         # Setup subsystems
         self.registry = PluginRegistry()
+        from flock.plugins.security import PluginSecurityManager
+        self.security = PluginSecurityManager(self.registry)
         self.loader = PluginLoader(self.registry, self._events)
-        self.sandbox = PluginSandbox()
+        self.sandbox = PluginSandbox(self.security)
         self.resolver = PluginDependencyResolver()
 
         self._running = False
